@@ -13,35 +13,35 @@ Game starts -> from the common pot a stream is started and continously adjusted 
 
 Guess... that's about it. 
 
-    <br>
+<br>
 
-    ### Known Unknows / Design Choices
-    * Best game state for wager deposit (at creation and at join VS at end execution)
-    * Secret asymetric bet size (requires endgame state player cooperation?)
-    * No frontend option -> onchain state and execution
-    * Identity management (in-browser persistent authentication)
-    * Storing moves onchain -> unnecessary overhead or worth it
-    * Game parametes: {global_time_limit, on_move_time_increment, timeout_nomove, timeout_noshow, bet_size, color_random, third_party_address, player1_address, player2_address}
-    * Predeterined third party donation wallet options (EDRi, EFF, WWF)
-    
-    <br>
+### Known Unknows / Design Choices
+* Best game state for wager deposit (at creation and at join VS at end execution)
+* Secret asymetric bet size (requires endgame state player cooperation?)
+* No frontend option -> onchain state and execution
+* Identity management (in-browser persistent authentication)
+* Storing moves onchain -> unnecessary overhead or worth it
+* Game parametes: {global_time_limit, on_move_time_increment, timeout_nomove, timeout_noshow, bet_size, color_random, third_party_address, player1_address, player2_address}
+* Predeterined third party donation wallet options (EDRi, EFF, WWF)
 
-    ### Problems
-    * Cheating (detection / escrow / blind peer review VS cheaters_be_cheating (it_is_what_it_is) VS cheat as ingame variable)
-    
-    <br>
+<br>
+
+### Problems
+* Cheating (detection / escrow / blind peer review VS cheaters_be_cheating (it_is_what_it_is) VS cheat as ingame variable)
+
+<br>
 
 
-    ### Business model
+### Business model
 
-    <br>
+<br>
 
-    ### Variations
+### Variations
 
-    * Chess Engine (AI) vs Chess Engine (AI) competition with predefined category time limit. (don't think blocktime is an issue as long as they are hashed with submission time in queue - I def. don't yet understand this.)
+* Chess Engine (AI) vs Chess Engine (AI) competition with predefined category time limit. (don't think blocktime is an issue as long as they are hashed with submission time in queue - I def. don't yet understand this.)
 
-    <br>
-    ### Supply chain 
-    *   [chess.js](https://github.com/jhlywa/chess.js.git)
-    *   [chessboard.js](https://github.com/oakmac/chessboardjs/)
-    <br>
+<br>
+### Supply chain 
+*   [chess.js](https://github.com/jhlywa/chess.js.git)
+*   [chessboard.js](https://github.com/oakmac/chessboardjs/)
+<br>
