@@ -15,21 +15,24 @@ export default class ChessBoardComponent extends Component{
 		this.state = {
             //fen: new Chess().fen()
             fen: this.props.currentboard,
-            game: new Chess(this.props.currentboard) ,
+            game: new Chess(this.props.currentboard),
             color:'black'
+            
 		}
-  
+    
+   
+
   }
 
 
   //const [game, setGame] = useState(new Chess());
 
   componentDidMount() {
-    if (this.props.currentboard == '') {
-        this.setState({fen: new Chess().fen()})
-        console.log("GOT EMPTY STRING PROP AS FEN", this.props.currentboard)
+    // if (this.props.currentboard == '') {
+    //     this.setState({fen: new Chess().fen()})
+    //     console.log("GOT EMPTY STRING PROP AS FEN", this.props.currentboard)
         
-    }
+    // }
 
    
 
@@ -56,13 +59,18 @@ export default class ChessBoardComponent extends Component{
 
     }
 
-    componentWillReceiveProps() {
-      if (this.props.currentgame.playerTwo == this.props.account ) {
-        this.setState({color: "white"})
-      } else {
-        this.setState({color: "black"})
-        console.log("I WASSS HHEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEee", this.props.currentgame.playerTwo, this.props.account)
-      }    
+    componentWillReceiveProps(nextprops){
+
+      this.setState({
+          fen: nextprops.currentboard,
+          game: new Chess(nextprops.currentboard),
+          });
+      // if (this.props.currentgame.playerTwo == this.props.account ) {
+      //   this.setState({color: "white"})
+      // } else {
+      //   this.setState({color: "black"})
+      //   console.log("I WASSS HHEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEee", this.props.currentgame.playerTwo, this.props.account)
+      // }    
     }
   
     
@@ -81,7 +89,7 @@ export default class ChessBoardComponent extends Component{
     
     let move = null;
     let game= this.state.game
-    
+    console.log(game, "move not a function?")
     move = game.move({
         from: sourceSquare,
         to: targetSquare,
@@ -91,6 +99,7 @@ export default class ChessBoardComponent extends Component{
     if (move === null) {
       console.log("Illegal Move");
       console.log(game,move, game.turn())
+      console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen, this.state.game.turn())
     } else {
         // this.setState({ gameb: move, fen: gamex.fen()})
         // //let move = String(this.state.game.fen());
@@ -99,7 +108,7 @@ export default class ChessBoardComponent extends Component{
         
         // //push.call();
         console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen)
-        
+        //this.setState({game: game})
         this.props.submitmove(game.fen());
         //this.setState({ game: game})
         
@@ -112,7 +121,7 @@ export default class ChessBoardComponent extends Component{
     return (
         <div>
           <br />
-            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.state.color}	/> 
+            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.props.color}	/> 
           <br />
         </div> 
         )

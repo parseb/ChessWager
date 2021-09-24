@@ -92,7 +92,7 @@ class App extends Component {
     let createCall= await contract.methods.playerTwoAccepted(true)
     .send({from: accounts[0], value: this.state.currentGame.settings.wageSize});
     
-
+    this.setState({color:'white'})
   }
 
   declineGameInvite= async () =>{
@@ -187,7 +187,7 @@ class App extends Component {
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
         //return <ChessBoard2 context={this} user={this.state.accounts[0]} />
-        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} currentgame={this.state.currentGame} />
+        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} color={this.state.color} />
       }
     }
 
@@ -195,6 +195,7 @@ class App extends Component {
       if (this.state.currentGame[0] == this.state.accounts[0]) {
         return  ( <h6> Invite Accepted: {String(this.state.currentGame.player2accepted)} </h6>)
       } else if (this.state.currentGame[1] == this.state.accounts[0] && ( !this.state.currentGame.player2accepted)) {
+          
         return(
       <Col>
         <Row> 
