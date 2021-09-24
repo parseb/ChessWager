@@ -25,37 +25,9 @@ export default class ChessBoardComponent extends Component{
   }
 
 
-  //const [game, setGame] = useState(new Chess());
+
 
   componentDidMount() {
-    // if (this.props.currentboard == '') {
-    //     this.setState({fen: new Chess().fen()})
-    //     console.log("GOT EMPTY STRING PROP AS FEN", this.props.currentboard)
-        
-    // }
-
-   
-
-
-
-      // let validfen= Chess.validate_fen(this.props.currentboard)
-      // if (validfen) { console.log(this.props.currentboard, "fen is valid")}
-      // else {console.log(this.props.currentboard, "THIS FEN IS INVALID")}
-      // const game = new Chess().load(this.state.fen); 
-      
-      // const currentpostition= async () => {   return ( this.props.getcurrent()) }
-      // let currentfen =  currentpostition.returnValues[3][3]
-      // console.log(currentpostition)
-      // this.setState({fen: currentfen })
-      // function safeGameMutate(modify) {
-      //   this.setState({
-      //      game: (g) => {
-      //           const update = { ...g };
-      //           modify(update);
-      //           return update;
-      //         }
-      //   })
-      // }
 
     }
 
@@ -65,24 +37,10 @@ export default class ChessBoardComponent extends Component{
           fen: nextprops.currentboard,
           game: new Chess(nextprops.currentboard),
           });
-      // if (this.props.currentgame.playerTwo == this.props.account ) {
-      //   this.setState({color: "white"})
-      // } else {
-      //   this.setState({color: "black"})
-      //   console.log("I WASSS HHEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEee", this.props.currentgame.playerTwo, this.props.account)
-      // }    
+       
     }
   
-    
-
-//   function makeRandomMove() {
-//     const possibleMoves = game.moves();
-//     if (game.game_over() || game.in_draw() || possibleMoves.length === 0) return; // @@@@XXXX@!checkmate draw PossibleMoves.length
-//     const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-//     safeGameMutate((game) => {
-//       game.move(possibleMoves[randomIndex]);
-//     });
-//   }
+  
 
   onDrop = (sourceSquare, targetSquare) => {
     console.log(sourceSquare, targetSquare)
@@ -93,7 +51,7 @@ export default class ChessBoardComponent extends Component{
     move = game.move({
         from: sourceSquare,
         to: targetSquare,
-        promotion: 'q' // always promote to a queen for example simplicity
+        promotion: 'q' //
       });
 
     if (move === null) {
@@ -101,10 +59,7 @@ export default class ChessBoardComponent extends Component{
       console.log(game,move, game.turn())
       console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen, this.state.game.turn())
     } else {
-        // this.setState({ gameb: move, fen: gamex.fen()})
-        // //let move = String(this.state.game.fen());
-        // //state.setState({'moveToSubmit': move});
-        // console.log("submitted move", move, gamex.fen());
+     
         
         // //push.call();
         console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen)
@@ -114,7 +69,7 @@ export default class ChessBoardComponent extends Component{
         
    
     }
-    //setTimeout(makeRandomMove, 200);
+    
   }
   render() {
    
