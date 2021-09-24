@@ -90,14 +90,15 @@ contract GameContract {
                           uint16 _startsAt,
                           uint16 _totalTime,
                           uint16 _timeoutTime,
-                          uint _wageSize ) public payable returns(uint justCreatedGameId) {
+                          uint _wageSize,
+                          string memory _currentGameBoard ) public payable returns(uint justCreatedGameId) {
     bool openGame;
   
     games[gameId]= gameData({
                             playerOne: msg.sender,
                             playerTwo: _playerTwo,
                             gState: gameState.Staged,
-                            currentGameBoard:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+                            currentGameBoard:_currentGameBoard,
                             lastMover: address(0),
                             settings: gameSettings ({ startsAt: _startsAt,
                                               openInvite: openGame,
@@ -174,7 +175,9 @@ contract GameContract {
 
   function submitMove(string memory _submittedMove) public {
     string memory submitted = _submittedMove;
+    require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
     gameData storage game= games[myLastGame[msg.sender]]; 
+    
     string memory prevState= string(game.currentGameBoard);
     if(onMoveStateCheck(myLastGame[msg.sender])) {
       game.lastMover= msg.sender;

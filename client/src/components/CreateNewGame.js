@@ -11,7 +11,8 @@ export default class CreateNew extends Component {
             WagerAmount:111111,
             Player2Address:0,
             Player1Address:this.props.userAddress,
-            GamePerTime:0
+            GamePerTime:0,
+            
 		}
 
        

@@ -24,7 +24,7 @@ class App extends Component {
              gamesTotalCount: 0,
              openGamesList: [],
              currentGame: {},
-             currentGameBoard:''
+             currentGameBoard:new Chess().fen()
             }
   }
   
@@ -79,7 +79,7 @@ class App extends Component {
   
     const { accounts, contract, web3js } = this.state;
  
-    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount)
+    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
   }
 
@@ -100,7 +100,7 @@ class App extends Component {
   }
 
   submitsMove = async (f) =>{
-    this.setState({moveToSubmit: f});
+    this.setState({currentGameBoard: f});
 
     console.log("submitted move", f);
     this.state.contract.methods.submitMove(f).send({from: this.state.accounts[0]})
@@ -183,7 +183,7 @@ class App extends Component {
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
         //return <ChessBoard2 context={this} user={this.state.accounts[0]} />
-        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} pleaseRerender={Math.random()} />
+        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} />
       }
     }
 

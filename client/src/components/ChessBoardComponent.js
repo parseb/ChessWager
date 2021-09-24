@@ -11,9 +11,9 @@ export default class ChessBoardComponent extends Component{
     constructor(props) {
 		super(props)
 		this.state = {
-            gameb: new Chess(this.props.currentboard),
             //fen: new Chess().fen()
             fen: this.props.currentboard,
+            game: Chess(this.props.currentGameBoard)
 		}
     }
   //const [game, setGame] = useState(new Chess());
@@ -29,20 +29,22 @@ export default class ChessBoardComponent extends Component{
       // let currentfen =  currentpostition.returnValues[3][3]
       // console.log(currentpostition)
       // this.setState({fen: currentfen })
-
-
-      function safeGameMutate(modify) {
-        this.setState({
-           game: (g) => {
-                const update = { ...g };
-                modify(update);
-                return update;
-              }
-        })
-      }
+      // function safeGameMutate(modify) {
+      //   this.setState({
+      //      game: (g) => {
+      //           const update = { ...g };
+      //           modify(update);
+      //           return update;
+      //         }
+      //   })
+      // }
 
     }
 
+
+    componentDidUpdate() {
+
+    }
 
 
 
@@ -59,9 +61,9 @@ export default class ChessBoardComponent extends Component{
     console.log(sourceSquare, targetSquare)
     
     let move = null;
-    let gamex= Chess(this.state.fen);
+    //let gamex= this.state.game
     
-    move = gamex.move({
+    move = this.state.game.move({
         from: sourceSquare,
         to: targetSquare,
         promotion: 'q' // always promote to a queen for example simplicity
@@ -69,6 +71,7 @@ export default class ChessBoardComponent extends Component{
 
     if (move === null) {
       console.log("Illegal Move");
+      console.log(this.state.game,move)
     } else {
         // this.setState({ gameb: move, fen: gamex.fen()})
         // //let move = String(this.state.game.fen());
@@ -76,8 +79,11 @@ export default class ChessBoardComponent extends Component{
         // console.log("submitted move", move, gamex.fen());
         
         // //push.call();
+        console.log("gamex :", this.state.game, "submitted:", this.state.game.fen(), "move:", move, "currentfen:",this.state.fen)
+        
+        this.props.submitmove(this.state.game.fen());
 
-        this.props.submitmove(gamex.fen());
+        
    
     }
     //setTimeout(makeRandomMove, 200);
