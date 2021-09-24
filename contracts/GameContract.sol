@@ -41,7 +41,7 @@ contract GameContract {
     address lastMover;
     gameSettings settings;
     uint gameBalance;
-    bool player2accepted; 
+    bool player2accepted;
   }
   
   mapping (uint => gameData) public games; 
@@ -106,8 +106,9 @@ contract GameContract {
                                               timeoutTime: _timeoutTime,
                                               wageSize:  _wageSize }),
                             gameBalance: msg.value,
-                            player2accepted: false 
+                            player2accepted: false
                             });
+//playeTwo is always white
 
     require((noOtherGameOnCreate(msg.sender) && noOtherGameOnCreate(_playerTwo)), "One of the players has a game in progress.");
     myLastGame[msg.sender]= gameId;

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
-import { Chessboard } from 'react-chessboard';
+//import { Chessboard } from 'react-chessboard';
 
 import HomeFooter from "./components/HomeFooter";
 import ChessTitle from  "./components/ChessTitle";
@@ -24,7 +24,8 @@ class App extends Component {
              gamesTotalCount: 0,
              openGamesList: [],
              currentGame: {},
-             currentGameBoard:new Chess().fen()
+             currentGameBoard:new Chess().fen(),
+             color: 'black'
             }
   }
   
@@ -69,6 +70,8 @@ class App extends Component {
   getCurrentGame = async () => {
     const { accounts, contract, web3js } = this.state;
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+    // let color= this.state.currentGame[1] == this.state.accounts[0] 
+    // if (color) { this.setState({ color:"black" })}
     this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
@@ -88,6 +91,7 @@ class App extends Component {
     const { accounts, contract, web3js } = this.state;
     let createCall= await contract.methods.playerTwoAccepted(true)
     .send({from: accounts[0], value: this.state.currentGame.settings.wageSize});
+    
 
   }
 
@@ -183,7 +187,7 @@ class App extends Component {
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
         //return <ChessBoard2 context={this} user={this.state.accounts[0]} />
-        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} />
+        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} currentgame={this.state.currentGame} />
       }
     }
 

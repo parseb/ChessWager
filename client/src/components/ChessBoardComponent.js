@@ -10,20 +10,35 @@ export default class ChessBoardComponent extends Component{
   
     constructor(props) {
 		super(props)
+
+  
 		this.state = {
             //fen: new Chess().fen()
             fen: this.props.currentboard,
-            game: Chess(this.props.currentGameBoard)
+            game: new Chess(this.props.currentboard) ,
+            color:'black'
 		}
-    }
+  
+  }
+
+
   //const [game, setGame] = useState(new Chess());
 
   componentDidMount() {
     if (this.props.currentboard == '') {
         this.setState({fen: new Chess().fen()})
         console.log("GOT EMPTY STRING PROP AS FEN", this.props.currentboard)
+        
     }
-      const game = new Chess(this.state.fen); 
+
+   
+
+
+
+      // let validfen= Chess.validate_fen(this.props.currentboard)
+      // if (validfen) { console.log(this.props.currentboard, "fen is valid")}
+      // else {console.log(this.props.currentboard, "THIS FEN IS INVALID")}
+      // const game = new Chess().load(this.state.fen); 
       
       // const currentpostition= async () => {   return ( this.props.getcurrent()) }
       // let currentfen =  currentpostition.returnValues[3][3]
@@ -41,12 +56,16 @@ export default class ChessBoardComponent extends Component{
 
     }
 
-
-    componentDidUpdate() {
-
+    componentWillReceiveProps() {
+      if (this.props.currentgame.playerTwo == this.props.account ) {
+        this.setState({color: "white"})
+      } else {
+        this.setState({color: "black"})
+        console.log("I WASSS HHEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEee", this.props.currentgame.playerTwo, this.props.account)
+      }    
     }
-
-
+  
+    
 
 //   function makeRandomMove() {
 //     const possibleMoves = game.moves();
@@ -61,9 +80,9 @@ export default class ChessBoardComponent extends Component{
     console.log(sourceSquare, targetSquare)
     
     let move = null;
-    //let gamex= this.state.game
+    let game= this.state.game
     
-    move = this.state.game.move({
+    move = game.move({
         from: sourceSquare,
         to: targetSquare,
         promotion: 'q' // always promote to a queen for example simplicity
@@ -71,7 +90,7 @@ export default class ChessBoardComponent extends Component{
 
     if (move === null) {
       console.log("Illegal Move");
-      console.log(this.state.game,move)
+      console.log(game,move, game.turn())
     } else {
         // this.setState({ gameb: move, fen: gamex.fen()})
         // //let move = String(this.state.game.fen());
@@ -79,20 +98,21 @@ export default class ChessBoardComponent extends Component{
         // console.log("submitted move", move, gamex.fen());
         
         // //push.call();
-        console.log("gamex :", this.state.game, "submitted:", this.state.game.fen(), "move:", move, "currentfen:",this.state.fen)
+        console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen)
         
-        this.props.submitmove(this.state.game.fen());
-
+        this.props.submitmove(game.fen());
+        //this.setState({ game: game})
         
    
     }
     //setTimeout(makeRandomMove, 200);
   }
   render() {
+   
     return (
         <div>
           <br />
-            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} /> 
+            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.state.color}	/> 
           <br />
         </div> 
         )
