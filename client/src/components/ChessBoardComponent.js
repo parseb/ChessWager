@@ -11,7 +11,7 @@ export default class ChessBoardComponent extends Component{
     constructor(props) {
 		super(props)
 		this.state = {
-            gameb: new Chess(),
+            gameb: new Chess(this.props.currentboard),
             //fen: new Chess().fen()
             fen: this.props.currentboard,
 		}
@@ -24,8 +24,11 @@ export default class ChessBoardComponent extends Component{
         console.log("GOT EMPTY STRING PROP AS FEN", this.props.currentboard)
     }
       const game = new Chess(this.state.fen); 
-        
-
+      
+      // const currentpostition= async () => {   return ( this.props.getcurrent()) }
+      // let currentfen =  currentpostition.returnValues[3][3]
+      // console.log(currentpostition)
+      // this.setState({fen: currentfen })
 
 
       function safeGameMutate(modify) {
@@ -67,12 +70,12 @@ export default class ChessBoardComponent extends Component{
     if (move === null) {
       console.log("Illegal Move");
     } else {
-        this.setState({ gameb: move, fen: gamex.fen()})
-        //let move = String(this.state.game.fen());
-        //state.setState({'moveToSubmit': move});
-        console.log("submitted move", move, gamex.fen());
+        // this.setState({ gameb: move, fen: gamex.fen()})
+        // //let move = String(this.state.game.fen());
+        // //state.setState({'moveToSubmit': move});
+        // console.log("submitted move", move, gamex.fen());
         
-        //push.call();
+        // //push.call();
 
         this.props.submitmove(gamex.fen());
    
@@ -83,7 +86,7 @@ export default class ChessBoardComponent extends Component{
     return (
         <div>
           <br />
-            <Chessboard position={this.state.fen} onPieceDrop={this.onDrop} /> 
+            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} /> 
           <br />
         </div> 
         )

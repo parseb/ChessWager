@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
@@ -15,15 +15,19 @@ import ChessBoard2 from "./components/ChessBoard";
 import ChessBoardComponent from "./components/ChessBoardComponent";
 
 class App extends Component {
-  state = { 
+  constructor() {
+  super()
+  this.state = { 
              web3: null, 
              accounts: null, 
              contract: null,
              gamesTotalCount: 0,
              openGamesList: [],
-             currentGame: '',
+             currentGame: {},
              currentGameBoard:''
             }
+  }
+  
 
   componentDidMount = async () => {
     try {
@@ -67,7 +71,7 @@ class App extends Component {
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
     this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
     console.log("this is current game")
-    console.log(currentgame); 
+    console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
    
   }
 
@@ -103,7 +107,7 @@ class App extends Component {
     // .then(
     //   this.getCurrentGame()
     // )
-    this.eventListen();
+    // this.eventListen();
   }
 
 
@@ -117,9 +121,10 @@ class App extends Component {
       
   }, async (error, event) => { 
     console.log('this is event', event); 
-    const { accounts, contract, web3js } = this.state;
-    const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+    // const { accounts, contract, web3js } = this.state;
+    // const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+    // this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+    // console.log("id did set state:", this.state.currentGameBoard )
   })
   
   //this.checkAndReturnCurrentGame();//////////!!!!!!!!!!!!!!!
@@ -128,13 +133,34 @@ class App extends Component {
   .on("connected", function(subscriptionId){
       console.log(subscriptionId);
   })
-  .on('data', function(event){
+  .on('data', async (event) => {
       
       console.log(event); 
+      if (event.event === "newMoveInGame") {
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        console.log("NewMove Event - state:", this.state.currentGameBoard )
+      }
+
+      if(event.event === "newGameCreatedEvent") {
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        console.log("NewGame Event - state:", this.state.currentGameBoard )
+      }
+
+      if(event.event === "player2Accepted") {
+        //accord= event.returnValues._accepted;
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        console.log("Player Accept - state:",event.returnValues._accepted ,this.state.currentGameBoard )
+      }
+
+     
+      
   })
   .on("newMoveInGame", function(e){
       console.log("in new move event", e);
-      this.setState({currentGameBoard : e.returnValues.nextState })
+      // this.setState({currentGameBoard : e.returnValues.nextState })
 
   })
   .on('error', function(error, receipt) {
@@ -157,7 +183,7 @@ class App extends Component {
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
         //return <ChessBoard2 context={this} user={this.state.accounts[0]} />
-        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGame.currentGameBoard} />
+        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} pleaseRerender={Math.random()} />
       }
     }
 
@@ -245,3 +271,5 @@ class App extends Component {
 }
 
 export default App;
+
+

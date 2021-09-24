@@ -97,7 +97,7 @@ contract GameContract {
                             playerOne: msg.sender,
                             playerTwo: _playerTwo,
                             gState: gameState.Staged,
-                            currentGameBoard:"",
+                            currentGameBoard:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
                             lastMover: address(0),
                             settings: gameSettings ({ startsAt: _startsAt,
                                               openInvite: openGame,
@@ -170,7 +170,7 @@ contract GameContract {
   
   
   
-  event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, string nextState);
+  event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
   function submitMove(string memory _submittedMove) public {
     string memory submitted = _submittedMove;
@@ -181,6 +181,6 @@ contract GameContract {
       game.currentGameBoard = submitted; 
     }
     address other = otherPlayer(myLastGame[msg.sender]); 
-    emit newMoveInGame( msg.sender, other, string(prevState), string(submitted) );
+    emit newMoveInGame( msg.sender, other, string(prevState), game );
   } 
 }
