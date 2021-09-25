@@ -28,6 +28,7 @@ export default class ChessBoardComponent extends Component{
 
 
   componentDidMount() {
+    console.log('game OVER: ', this.state.game.fen(), Chess(this.props.currentboard).fen())
 
     }
 
@@ -47,7 +48,7 @@ export default class ChessBoardComponent extends Component{
     
     let move = null;
     let game= this.state.game
-    console.log(game, "move not a function?")
+    
     move = game.move({
         from: sourceSquare,
         to: targetSquare,
@@ -56,15 +57,24 @@ export default class ChessBoardComponent extends Component{
 
     if (move === null) {
       console.log("Illegal Move");
-      console.log(game,move, game.turn())
       console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen, this.state.game.turn())
+      console.log('game OVER: ', game.game_over())
     } else {
      
         
         // //push.call();
         console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen)
         //this.setState({game: game})
-        this.props.submitmove(game.fen());
+        if (game.game_over() ) {
+          console.log('game OVER: ', game.game_over())
+
+          //this.props.resign()
+
+          alert("game over. please resign")
+        } else {
+          this.props.submitmove(game.fen());
+        }
+        
         //this.setState({ game: game})
         
    

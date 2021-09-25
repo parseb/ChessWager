@@ -71,7 +71,7 @@ contract GameContract {
     //do not need it, do I?
     gameData memory game=games[_gameid];
     bool g= (  game.gState == gameState.InProgress || game.gState == gameState.Staged  );
-    bool notLastMover = msg.sender != game.lastMover; 
+    bool notLastMover = !(msg.sender == game.lastMover); 
     require( g && notLastMover , "Game State: Unavailable." );
     return true;
   }
@@ -132,12 +132,6 @@ contract GameContract {
  
   function checkAndReturnCurrentGame() public view returns (gameData memory game) {
     game= games[myLastGame[msg.sender]];
-  //   if ( noOtherGameOnCreate(msg.sender)) {
-  //     return games[0];  //////??? why 
-  //   } else {
-  //     game= games[myLastGame[msg.sender]];
-  //     return game;
-  //   }
    }
   
   event player2Accepted(address indexed _player1, address indexed _player2, bool _accepted);
@@ -186,5 +180,15 @@ contract GameContract {
     }
     address other = otherPlayer(myLastGame[msg.sender]); 
     emit newMoveInGame( msg.sender, other, string(prevState), game );
-  } 
+  }
+
+  function resignGame() public {
+    gameData storage game = games[myLastGame[msg.sender]];
+    if ( onMoveStateCheck(myLastGame[msg.sender]) ) {
+      myLastGame[game.playerOne]= 0;
+      myLastGame[game.playerTwo] = 0;
+    }
+    
+  }
+
 }

@@ -221,6 +221,12 @@ class App extends Component {
       }
     }
 
+    const resignGameButton= () => {
+      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1  ) {
+        return ( <Button onClick={ ()=> { this.state.contract.methods.resignGame().call(); console.log(this.state.contract.methods) } } > Resign </Button> )   
+      }
+    } 
+
      if (!this.state.web3) {
        return (  
          <Container>
@@ -261,7 +267,9 @@ class App extends Component {
                 {acceptGameButton()}
               </Row>
               <hr />
-              <Row></Row>
+              <Row>
+                {resignGameButton()}
+              </Row>
               <hr />
               <Row></Row>
               <hr />
