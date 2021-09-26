@@ -54,30 +54,25 @@ export default class ChessBoardComponent extends Component{
         to: targetSquare,
         promotion: 'q' //
       });
+    
+    if (game.game_over() ) {
+      console.log('game OVER: ', game.game_over())
+
+      //this.props.resign()
+      alert("game over. please resign")
+    }
 
     if (move === null) {
       console.log("Illegal Move");
       console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen, this.state.game.turn())
       console.log('game OVER: ', game.game_over())
-    } else {
-     
-        
+    } else {   
         // //push.call();
         console.log("gamex :", game, "submitted:", game.fen(), "move:", move, "currentfen:",this.state.fen)
         //this.setState({game: game})
-        if (game.game_over() ) {
-          console.log('game OVER: ', game.game_over())
-
-          //this.props.resign()
-
-          alert("game over. please resign")
-        } else {
-          this.props.submitmove(game.fen());
-        }
         
+        this.props.submitmove(game.fen());
         //this.setState({ game: game})
-        
-   
     }
     
   }

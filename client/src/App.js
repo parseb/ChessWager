@@ -114,6 +114,10 @@ class App extends Component {
     // this.eventListen();
   }
 
+  resignGame = async () => {
+    this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
+  }
+  
 
   eventListen= async () => {
     let contract  = await this.state.contract;
@@ -223,7 +227,7 @@ class App extends Component {
 
     const resignGameButton= () => {
       if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1  ) {
-        return ( <Button onClick={ ()=> { this.state.contract.methods.resignGame().call(); console.log(this.state.contract.methods) } } > Resign </Button> )   
+        return ( <Button onClick={this.resignGame} > Resign </Button> )   
       }
     } 
 
