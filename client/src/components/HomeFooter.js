@@ -14,11 +14,6 @@ export default class HomeFooter extends Component {
                 <br />
                 <hr />
                 <Row> 
-                
-                    <Col></Col>
-                    
-                    <Col>
-
                 <Navbar float="bottom" >
                     <Card>
                         <Card.Title>?</Card.Title>
@@ -35,8 +30,6 @@ export default class HomeFooter extends Component {
                         </Card.Body>                     
                     </Card>
                 </Navbar>
-                    </Col>
-                    <Col></Col>
                 </Row>
             </Container> 
         ); 
