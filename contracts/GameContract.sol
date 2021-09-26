@@ -182,13 +182,19 @@ contract GameContract {
     emit newMoveInGame( msg.sender, other, string(prevState), game );
   }
 
+
+event playerResigned(address indexed submittedby, address indexed otherPlayer, address OtherPlayerNotLastMovedThatResigned);
+
   function resignGame() public {
     gameData storage game = games[myLastGame[msg.sender]];
+    
     if ( onMoveStateCheck(myLastGame[msg.sender]) ) {
+      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
+      
       myLastGame[game.playerOne]= 0;
       myLastGame[game.playerTwo] = 0;
     }
-    
+  
   }
 
 }

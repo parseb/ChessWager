@@ -11,10 +11,14 @@ export default class HomeFooter extends Component {
        
         return (
             <Container>
+                <br />
+                <hr />
                 <Row> 
-                    <hr />
+                
                     <Col></Col>
+                    
                     <Col>
+
                 <Navbar float="bottom" >
                     <Card>
                         <Card.Title>?</Card.Title>

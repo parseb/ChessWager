@@ -91,13 +91,15 @@ export default class CreateNew extends Component {
                         <Form.Group className="mb-3" controlId="WagerAmount">
                             <Form.Label>Wage Amount</Form.Label>
                             {/* <Form.Range type="number" placeholder="5" /> */}
-                            <Form.Control type="number" step="100000" defaultValue="1000000" min="1000" max="3060000000000000000000000" onChange={this.handleWageChange}  />
+                            <Form.Control type="number" step="100000" defaultValue="1000000" min="10000" max="3060000000000000000000000" onChange={this.handleWageChange}  />
                             <Form.Text className="text-muted">
-                                Minutes per player between (min. 5 max. 30 )
+                                Your half of the pot, in Wei. <br /> 
+                                (1 ether = 1,000,000,000,000,000,000 wei ) <br />
+                                Sorry about that. 
                             </Form.Text>
                         </Form.Group>
                         
-                            <Button variant="outline-dark"  onClick={this.createGame}>
+                            <Button variant="outline-dark" size="lg"  onClick={this.createGame}>
                                 Create Game
                             </Button>
                         

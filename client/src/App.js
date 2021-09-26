@@ -81,6 +81,7 @@ class App extends Component {
   sendCreateGame = async (s) => {
   
     const { accounts, contract, web3js } = this.state;
+    //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
     let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
@@ -163,6 +164,12 @@ class App extends Component {
         console.log("Player Accept - state:",event.returnValues._accepted ,this.state.currentGameBoard )
       }
 
+      if(event.event === "playerResigned") {
+        console.log("Player " + event.returnValues[0]  + " Resigned")
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+      }
+
      
       
   })
@@ -203,19 +210,22 @@ class App extends Component {
         return(
       <Col>
         <Row> 
+            
             <Col>
-              <Button variant="outline-success"  onClick={this.acceptGameInvite}>
-                Accept Game {this.state.currentGame.settings.wageSize}
+              <Button variant="outline-success" size="lg"  onClick={this.acceptGameInvite}>
+                Accept Game  <br /> 
+                Ξ { this.state.web3.utils.fromWei(this.state.currentGame.settings.wageSize, 'ether' )}
               </Button>
             </Col>
             <Col>
-              <Button variant="outline-danger"  onClick={this.declineGameInvite}>
-                Decline Game
+              <Button variant="outline-danger" size="lg"  onClick={this.declineGameInvite}>
+                Decline Game <br />
+                ❌
               </Button>
             </Col>
         </Row>
         <Row>
-          [Player 2 Response Timeout: 10 minutes] 
+          <p>X minutes remaining to accept invite</p>
         </Row>
       </Col>
         )
@@ -225,11 +235,49 @@ class App extends Component {
       }
     }
 
+    const otherPlayer = () => {
+      if ( this.state.currentGame.gState == "0") { return "◪"  }
+      else if( this.state.currentGame[0] == this.state.accounts[0] ) {
+        return ( this.state.currentGame[1] )
+      } else { return this.state.currentGame[0]}
+    }
+
+    const thisPlayer = () => {
+      if ( this.state.currentGame.gState == "0") { return "◩"  }
+      else if( this.state.currentGame[0] == this.state.accounts[0] ) {
+        return ( this.state.currentGame[1] )
+      } else { return this.state.currentGame[0]}
+    }
+
     const resignGameButton= () => {
       if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1  ) {
-        return ( <Button onClick={this.resignGame} > Resign </Button> )   
+        return ( <Button variant="danger" onClick={this.resignGame} > Resign </Button> )   
       }
-    } 
+    }
+    
+    const gameInfoCol = () => {
+      if ( this.state.currentGame.gState > 0 ) {
+        return (
+          <Col xs lg="4">
+              <hr />
+              <Row>
+                <h6> Game State: {gamestates[this.state.currentGame.gState]} </h6>
+              </Row>
+              <hr /> 
+              <Row>
+                {acceptGameButton()}
+              </Row>
+              <hr />
+              <Row>
+                {resignGameButton()}
+              </Row>
+              <hr />
+              <Row></Row>
+              <hr />
+            </Col> 
+        )
+      }
+    }
 
      if (!this.state.web3) {
        return (  
@@ -256,28 +304,15 @@ class App extends Component {
           <Container>
           <ChessTitle />
           <Row> 
-            <Col xs lg="8">
-              {this.state.currentGame[0]}
+            <Col>
+              { otherPlayer() }
+              <hr />
               {createGame()}
-              {this.state.currentGame[1]}
-            </Col>           
-            <Col xs lg="4">
               <hr />
-              <Row>
-                <h6> Game State: {gamestates[this.state.currentGame.gState]} </h6>
-              </Row>
-              <hr /> 
-              <Row>
-                {acceptGameButton()}
-              </Row>
-              <hr />
-              <Row>
-                {resignGameButton()}
-              </Row>
-              <hr />
-              <Row></Row>
-              <hr />
-            </Col> 
+              { thisPlayer() }
+            </Col>
+            { gameInfoCol() }     
+            <br />
           </Row>
           {/* get user account accounts[0] might return wrong one --check @#TODO */}
           <HomeFooter state={this.state} />
