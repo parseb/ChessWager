@@ -69,10 +69,10 @@ class App extends Component {
   getCurrentGame = async () => {
     const { accounts, contract, web3js } = this.state;
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-    // let color= this.state.currentGame[1] == this.state.accounts[0] 
-    // if (color) { this.setState({ color:"black" })}
-    let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: playcolor, g_state: currentgame.gState });
+    let color= this.state.currentGame[1] == accounts[0] 
+    if (color) { this.setState({ color:"white" })}
+    //let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
+    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: color, g_state: currentgame.gState });
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
 
