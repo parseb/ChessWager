@@ -82,10 +82,14 @@ class App extends Component {
   
     const { accounts, contract, web3js } = this.state;
     //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
- 
-    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen())
+    //console.log(s.WagerAmount)
+    //let ineth= toString( s.WagerAmount)
+    //console.log("ineth:", ineth)
+    //let wAmount = toString ( this.state.web3.utils.toWei(ineth, "ether") )
+    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0", s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
   }
+  
 
   acceptGameInvite= async () =>{
     console.log("clicked Accepted")
