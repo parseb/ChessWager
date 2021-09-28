@@ -21,7 +21,10 @@ export default class ChessTitle extends Component {
             </div>
             </Col>
             <Col></Col>
-            <hr />
+            <hr style={{
+            color: "black",
+            height: 3
+        }}/>
             </Container>
         )}
 }

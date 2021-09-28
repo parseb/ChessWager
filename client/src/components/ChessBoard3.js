@@ -56,11 +56,11 @@ export default class ChessBoard3 extends Component {
   render(){
 
  return(
-    <div>
-        <hr />
+  
+      
         <Chessboard position={game.fen()} onPieceDrop={onDrop} /> 
-        <hr /> 
-    </div> 
+     
+   
   )
 }
 }

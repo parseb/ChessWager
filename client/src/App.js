@@ -2,16 +2,14 @@ import React, { Component } from "react";
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
-//import { Chessboard } from 'react-chessboard';
 
 import HomeFooter from "./components/HomeFooter";
 import ChessTitle from  "./components/ChessTitle";
-
 import "./App.css";
-import { Container, Row, Spinner, Col, Button }  from 'react-bootstrap';
+import { Container, Row, Spinner, Col, Button, Card }  from 'react-bootstrap';
 import GameContract from "./contracts/GameContract.json";
 import CreateNew from "./components/CreateNewGame";
-import ChessBoard2 from "./components/ChessBoard";
+
 import ChessBoardComponent from "./components/ChessBoardComponent";
 
 class App extends Component {
@@ -25,7 +23,8 @@ class App extends Component {
              openGamesList: [],
              currentGame: {},
              currentGameBoard:new Chess().fen(),
-             color: 'black'
+             color: 'black',
+             g_state:"0"
             }
   }
   
@@ -72,10 +71,11 @@ class App extends Component {
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
     // let color= this.state.currentGame[1] == this.state.accounts[0] 
     // if (color) { this.setState({ color:"black" })}
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+    let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
+    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: playcolor, g_state: currentgame.gState });
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
-   
+
   }
 
   sendCreateGame = async (s) => {
@@ -191,14 +191,12 @@ class App extends Component {
   render() {
   //chessb end
     const gamestates= {0:"Stateless", 1: "Staged", 2:"In Progress", 3: "Ended", 4: "Rejected"}
-    const createGame= () => {
-      const gstate= this.state.currentGame.gState
-      console.log(this.state.currentgame, "----gstate")
-      if(gstate == "0" || gstate == "4" ){
+    const createGame=  () => {
+      
+      if(this.state.g_state == "0" || this.state.g_state == "4" ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
-        //return <ChessBoard2 context={this} user={this.state.accounts[0]} />
-        return <ChessBoardComponent contract={this.state.contract} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} color={this.state.color} />
+          return <ChessBoardComponent gstate={this.state.g_state} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} color={this.state.color} />
       }
     }
 
@@ -224,14 +222,31 @@ class App extends Component {
               </Button>
             </Col>
         </Row>
+        <br />
         <Row>
-          <p>X minutes remaining to accept invite</p>
+          <p className="text text-muted">X minutes remaining to accept invite</p>
         </Row>
       </Col>
         )
       } else {
         return  ( <h6> Invite Accepted: {String(this.state.currentGame.player2accepted)} </h6>)
         //@# debt - refactor
+      }
+    }
+
+    const blackTurnStyle = (playeraddress) => {
+      if (this.state.currentGame[7]){
+        if (this.state.currentGame[4] !== playeraddress ) {
+          return(
+            
+            <div className="thisplayer" color='white' backgroundColor='black' >
+              {{playeraddress}}
+            </div>
+            )
+        }
+      }
+      else {
+        return ( playeraddress)
       }
     }
 
@@ -243,23 +258,27 @@ class App extends Component {
     }
 
     const thisPlayer = () => {
-      if ( this.state.currentGame.gState == "0") { return "◩"  }
-      else if( this.state.currentGame[0] == this.state.accounts[0] ) {
-        return ( this.state.currentGame[1] )
-      } else { return this.state.currentGame[0]}
+      if ( this.state.currentGame.gState == "0") { 
+        return "◩"  
+      }
+     else { return this.state.accounts[0]}
     }
 
     const resignGameButton= () => {
-      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1  ) {
-        return ( <Button variant="danger" onClick={this.resignGame} > Resign </Button> )   
+      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")  ) {
+        return ( <Button variant="danger" size="lg" onClick={this.resignGame} > Resign </Button> )   
       }
     }
     
     const gameInfoCol = () => {
       if ( this.state.currentGame.gState > 0 ) {
         return (
-          <Col xs lg="4">
-              <hr />
+          
+          <Col xs lg="5">
+            <Container> 
+            <Card>
+              <Card.Title> </Card.Title>
+              <br />
               <Row>
                 <h6> Game State: {gamestates[this.state.currentGame.gState]} </h6>
               </Row>
@@ -269,15 +288,22 @@ class App extends Component {
               </Row>
               <hr />
               <Row>
-                {resignGameButton()}
+                <Col> {resignGameButton()}</Col>
+                
               </Row>
               <hr />
-              <Row></Row>
+              <Row>
+               Game Info 
+              </Row>
               <hr />
+            </Card>
+            </Container>
             </Col> 
         )
       }
     }
+
+    
 
      if (!this.state.web3) {
        return (  
@@ -305,11 +331,22 @@ class App extends Component {
           <ChessTitle />
           <Row> 
             <Col>
+            <Card>
+             
               { otherPlayer() }
+           
+           
+            <hr />
+            <Row>
+              <Col>  </Col>
+              <Col>{createGame()}</Col>
+              <Col>  </Col>
+              </Row>
               <hr />
-              {createGame()}
-              <hr />
+              
               { thisPlayer() }
+           
+            </Card>
             </Col>
             { gameInfoCol() }     
             <br />

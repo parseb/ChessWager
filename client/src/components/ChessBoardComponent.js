@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import  Chess  from 'chess.js';
 //const { Chess } = require('./chess.js')
 import { Chessboard } from 'react-chessboard';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, Row, Card } from 'react-bootstrap';
 
 
 export default class ChessBoardComponent extends Component{
@@ -28,7 +28,7 @@ export default class ChessBoardComponent extends Component{
 
 
   componentDidMount() {
-    console.log('game OVER: ', this.state.game.fen(), Chess(this.props.currentboard).fen())
+    //console.log('game OVER: ', this.state.game.fen(), Chess(this.props.currentboard).fen())
 
     }
 
@@ -79,11 +79,9 @@ export default class ChessBoardComponent extends Component{
   render() {
    
     return (
-        <div>
-          <br />
-            <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.props.color}	/> 
-          <br />
-        </div> 
+              <Card.Body >
+              <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.props.color}	/>
+              </Card.Body>                     
         )
 }
 
