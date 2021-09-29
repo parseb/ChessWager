@@ -28,8 +28,8 @@ contract GameContract {
   struct gameSettings {
     uint16 startsAt;
     bool openInvite;
-    uint16 totalTime;
-    uint16 timeoutTime;
+    uint totalTime;
+    uint timeoutTime;
     uint wageSize;
     uint8 p1color;
     uint8 p2color; 
@@ -78,10 +78,16 @@ contract GameContract {
     return true;
   }
 
-  function noOtherGameOnCreate(address player1) internal view returns(bool) {
-    gameData memory lastPlayer1Game = games[myLastGame[player1]]; 
+  // function player2NotInAGame(uint _gameid) internal view returns (bool) {
+  //   gameData memory game = games[_gameId];
+  //   require(myLastGame[game.playerTwo] == 0, "Player Two already in a game");
+  //   return true;
+  // } 
 
-    if( (lastPlayer1Game.gState == gameState.Ended) || (lastPlayer1Game.gState == gameState.NoAssignedState) ){
+  function noOtherGameOnCreate(address player) internal view returns(bool) {
+    gameData memory lastPlayerGame = games[myLastGame[player]]; 
+
+    if( (lastPlayerGame.gState == gameState.Ended) || (lastPlayerGame.gState == gameState.NoAssignedState) || myLastGame[player] == 0 ){
       return true;
     } else {
       return false;
@@ -91,7 +97,7 @@ contract GameContract {
   function initializeGame(address _playerTwo,
                           uint16 _startsAt,
                           uint16 _totalTime,
-                          uint16 _timeoutTime,
+                          uint _timeoutTime,
                           uint _wageSize,
                           string memory _currentGameBoard,
                           uint8 _p1color ,
@@ -107,21 +113,21 @@ contract GameContract {
                             settings: gameSettings ({ startsAt: _startsAt,
                                               openInvite: openGame,
                                               totalTime: _totalTime,
-                                              timeoutTime: _timeoutTime,
+                                              timeoutTime:  block.timestamp + _timeoutTime * 1 minutes,
                                               wageSize:  _wageSize, 
                                               p1color: _p1color,
                                               p2color: _p2color}),
                             gameBalance: msg.value,
                             player2accepted: false
                             });
-//playeTwo is always white
+//playerTwo is always white
 
     require((noOtherGameOnCreate(msg.sender) && noOtherGameOnCreate(_playerTwo)), "One of the players has a game in progress.");
     myLastGame[msg.sender]= gameId;
     myLastGame[_playerTwo]= gameId;
     
     justCreatedGameId = gameId;
-    
+  
     emit newGameCreatedEvent(msg.sender,_playerTwo);
     gameId++;
 
@@ -138,6 +144,25 @@ contract GameContract {
  
   function checkAndReturnCurrentGame() public view returns (gameData memory game) {
     game= games[myLastGame[msg.sender]];
+   }
+
+    event gameCanceled(address indexed submittedby, uint refundedAmount);
+
+
+   function cancelGame() public payable {
+     gameData memory game = games[myLastGame[msg.sender]];
+     if((! game.player2accepted) && (game.settings.timeoutTime < block.timestamp) && (msg.sender == game.playerOne)) {
+      myLastGame[game.playerOne]= 0;
+      myLastGame[game.playerTwo]= 0; 
+      uint refundAmount = game.settings.wageSize - (game.settings.wageSize / 99); 
+      // a proper gas risk approch would be cool
+      // case: player2 accept on player1 cancel? unlikely - possible?
+      // a game balance mapping would be cool
+      (bool success, ) = msg.sender.call{value:refundAmount}("");
+      require(success, "Refund failed.");  
+
+      emit gameCanceled(msg.sender, refundAmount);  
+    }
    }
   
   event player2Accepted(address indexed _player1, address indexed _player2, bool _accepted);

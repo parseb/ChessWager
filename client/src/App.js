@@ -83,7 +83,7 @@ class App extends Component {
     const { accounts, contract, web3js } = this.state;
     //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
-    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen(),"1","0")
+    let createCall= await contract.methods.initializeGame(s.Player2Address,6921269,s.GamePerTime,s.TimeoutTime,s.WagerAmount,new Chess().fen(),"1","0")
     .send({ from: accounts[0], value: s.WagerAmount })
   }
 
@@ -121,6 +121,11 @@ class App extends Component {
     this.setState({ g_state: "0" })
   }
   
+
+  cancelGame = async () => {
+    await this.state.contract.methods.cancelGame().send({from:this.state.accounts[0]});
+    console.log("Cancel Game request sent")
+  }
 
   eventListen= async () => {
     let contract  = await this.state.contract;
@@ -173,6 +178,13 @@ class App extends Component {
         
       }
 
+      if(event.event === "gameCanceled") {
+        console.log("Game Cancelled")
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: "0" });
+        
+      }
+    
      
       
   })
@@ -196,17 +208,30 @@ class App extends Component {
     const gamestates= {0:"Stateless", 1: "Staged", 2:"In Progress", 3: "Ended", 4: "Rejected"}
     const createGame=  () => {
       
-      if((this.state.g_state == "0" || this.state.g_state == "4") && !this.state.currentGame.player2accepted ){
+      if((this.state.g_state === "0" || this.state.g_state === "4") && !this.state.currentGame.player2accepted ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
           return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />
       }
     }
 
+    const cancelGameButton= () => {
+      // needed? maybe later
+      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][3]) < Date.now() ) {
+        return (
+          <Row>
+            <Button variant="outline-warning" size="lg"  onClick={this.cancelGame}>
+             Cancel Game and get Refund <br /> 
+            </Button>
+          </Row>
+        )
+      }
+    }
+
     const acceptGameButton = () => {
-      if (this.state.currentGame[0] == this.state.accounts[0]) {
+      if (this.state.currentGame[0] === this.state.accounts[0]) {
         return  ( <h6> Invite Accepted: {String(this.state.currentGame.player2accepted)} </h6>)
-      } else if (this.state.currentGame[1] == this.state.accounts[0] && ( !this.state.currentGame.player2accepted)) {
+      } else if (this.state.currentGame[1] === this.state.accounts[0] && ( !this.state.currentGame.player2accepted)) {
           
         return(
       <Col>
@@ -254,14 +279,14 @@ class App extends Component {
     // }
 
     const otherPlayer = () => {
-      if ( this.state.currentGame.gState == "0") { return "◪"  }
-      else if( this.state.currentGame[0] == this.state.accounts[0] ) {
+      if ( this.state.currentGame.gState === "0") { return "◪"  }
+      else if( this.state.currentGame[0] === this.state.accounts[0] ) {
         return ( this.state.currentGame[1] )
       } else { return this.state.currentGame[0]}
     }
 
     const thisPlayer = () => {
-      if ( this.state.currentGame.gState == "0") { 
+      if ( this.state.currentGame.gState === "0") { 
         return "◩"  
       }
      else { return this.state.accounts[0]}
@@ -292,7 +317,7 @@ class App extends Component {
               <hr />
               <Row>
                 <Col> {resignGameButton()}</Col>
-                
+                <Col>{cancelGameButton()}</Col>
               </Row>
               <hr />
               <Row>

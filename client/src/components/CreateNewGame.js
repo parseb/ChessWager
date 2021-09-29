@@ -12,6 +12,7 @@ export default class CreateNew extends Component {
             Player2Address:0,
             Player1Address:this.props.userAddress,
             GamePerTime:0,
+            TimeoutTime:2
             
 		}
 
@@ -42,19 +43,19 @@ export default class CreateNew extends Component {
     
   handleWageChange = (e) => {
     this.setState({WagerAmount: e.target.value})
-    
   }
 
   handlePlayer2Change = (e) => {
     this.setState({Player2Address: e.target.value})
-    
   }
 
   handleGamePerTimeChange = (e) => {
     this.setState({GamePerTime: e.target.value})
-    
   }
 
+  handleTimeoutTimeChange = (e) => {
+      this.setState({TimeoutTime: e.target.value})
+  }
     
 
     render() {
@@ -96,6 +97,14 @@ export default class CreateNew extends Component {
                                 Your half of the pot, in Wei. <br /> 
                                 (1 ether = 1,000,000,000,000,000,000 wei ) <br />
                                 Sorry about that. 
+                            </Form.Text>
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="TimeoutTime">
+                            <Form.Label>Max Acceptance Time</Form.Label>
+                            {/* <Form.Range type="number" placeholder="5" /> */}
+                            <Form.Control type="number" defaultValue="2" min="1" max="20" onChange={this.handleTimeoutTimeChange} />
+                            <Form.Text className="text-muted">
+                            Time limit in Minutes for Invited Player to Accept Game
                             </Form.Text>
                         </Form.Group>
                         
