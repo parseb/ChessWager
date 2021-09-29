@@ -30,7 +30,9 @@ contract GameContract {
     bool openInvite;
     uint16 totalTime;
     uint16 timeoutTime;
-    uint wageSize; 
+    uint wageSize;
+    uint8 p1color;
+    uint8 p2color; 
   }
 
   struct gameData {
@@ -91,7 +93,9 @@ contract GameContract {
                           uint16 _totalTime,
                           uint16 _timeoutTime,
                           uint _wageSize,
-                          string memory _currentGameBoard ) public payable returns(uint justCreatedGameId) {
+                          string memory _currentGameBoard,
+                          uint8 _p1color ,
+                          uint8 _p2color) public payable returns(uint justCreatedGameId) {
     bool openGame;
   
     games[gameId]= gameData({
@@ -104,7 +108,9 @@ contract GameContract {
                                               openInvite: openGame,
                                               totalTime: _totalTime,
                                               timeoutTime: _timeoutTime,
-                                              wageSize:  _wageSize }),
+                                              wageSize:  _wageSize, 
+                                              p1color: _p1color,
+                                              p2color: _p2color}),
                             gameBalance: msg.value,
                             player2accepted: false
                             });

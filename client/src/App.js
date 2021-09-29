@@ -21,7 +21,7 @@ class App extends Component {
              contract: null,
              gamesTotalCount: 0,
              openGamesList: [],
-             currentGame: {},
+             currentGame: '',
              currentGameBoard:new Chess().fen(),
              color: "black",
              g_state:"0"
@@ -83,17 +83,18 @@ class App extends Component {
     const { accounts, contract, web3js } = this.state;
     //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
-    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen())
+    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen(),"1","0")
     .send({ from: accounts[0], value: s.WagerAmount })
   }
 
   acceptGameInvite= async () =>{
     console.log("clicked Accepted")
     const { accounts, contract, web3js } = this.state;
-    let createCall= await contract.methods.playerTwoAccepted(true)
+    await contract.methods.playerTwoAccepted(true)
     .send({from: accounts[0], value: this.state.currentGame.settings.wageSize});
     
-    this.setState({color:'white'})
+    
+    //this.setState({color:'white'})
   }
 
   declineGameInvite= async () =>{
@@ -108,7 +109,7 @@ class App extends Component {
     this.setState({currentGameBoard: f});
 
     console.log("submitted move", f);
-    this.state.contract.methods.submitMove(f).send({from: this.state.accounts[0]})
+    await this.state.contract.methods.submitMove(f).send({from: this.state.accounts[0]})
     // .then(
     //   this.getCurrentGame()
     // )
@@ -116,7 +117,7 @@ class App extends Component {
   }
 
   resignGame = async () => {
-    this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
+    await this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
     this.setState({ g_state: "0" })
   }
   
@@ -195,7 +196,7 @@ class App extends Component {
     const gamestates= {0:"Stateless", 1: "Staged", 2:"In Progress", 3: "Ended", 4: "Rejected"}
     const createGame=  () => {
       
-      if(this.state.g_state == "0" || this.state.g_state == "4" ){
+      if((this.state.g_state == "0" || this.state.g_state == "4") && !this.state.currentGame.player2accepted ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
           return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />

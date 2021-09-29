@@ -16,7 +16,8 @@ export default class ChessBoardComponent extends Component{
             //fen: new Chess().fen()
             fen: this.props.currentboard,
             game: new Chess(this.props.currentboard),
-            color:"black"
+            color:"black",
+            currentgame: this.props.currentgame
             
 		}
     
@@ -42,6 +43,7 @@ export default class ChessBoardComponent extends Component{
       this.setState({
           fen: nextprops.currentboard,
           game: new Chess(nextprops.currentboard),
+          currentgame: this.props.currentgame
           //color: nextprops.color
           });
        
