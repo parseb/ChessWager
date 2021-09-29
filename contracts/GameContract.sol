@@ -44,12 +44,15 @@ contract GameContract {
     gameSettings settings;
     uint gameBalance;
     bool player2accepted;
+    uint totalGameTime;
+    uint p1Time;
+    uint p2Time;
   }
   
   mapping (uint => gameData) public games; 
   mapping (address => uint) myLastGame;
-  address[32] gameOwners;
-  address[32] gamePlayers;
+
+///////////BulkHudiStart
 
   event newGameCreatedEvent(address indexed _playerOne, address indexed _playerTwo);
 
@@ -226,9 +229,17 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
       //reverse order
       emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
       
-     
     }
   
   }
+
+///////////BulkHudiEnd
+
+
+
+
+
+
+
 
 }
