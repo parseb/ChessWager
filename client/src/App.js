@@ -23,7 +23,7 @@ class App extends Component {
              openGamesList: [],
              currentGame: {},
              currentGameBoard:new Chess().fen(),
-             color: 'black',
+             color: "black",
              g_state:"0"
             }
   }
@@ -71,8 +71,8 @@ class App extends Component {
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
     // let color= this.state.currentGame[1] == this.state.accounts[0] 
     // if (color) { this.setState({ color:"black" })}
-    let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: playcolor, g_state: currentgame.gState });
+    //let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
+    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: currentgame.gState });
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
 
@@ -117,6 +117,7 @@ class App extends Component {
 
   resignGame = async () => {
     this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
+    this.setState({ g_state: "0" })
   }
   
 
@@ -167,7 +168,8 @@ class App extends Component {
       if(event.event === "playerResigned") {
         console.log("Player " + event.returnValues[0]  + " Resigned")
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: "0" });
+        
       }
 
      
@@ -196,7 +198,7 @@ class App extends Component {
       if(this.state.g_state == "0" || this.state.g_state == "4" ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
-          return <ChessBoardComponent gstate={this.state.g_state} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} color={this.state.color} />
+          return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />
       }
     }
 
@@ -234,21 +236,21 @@ class App extends Component {
       }
     }
 
-    const blackTurnStyle = (playeraddress) => {
-      if (this.state.currentGame[7]){
-        if (this.state.currentGame[4] !== playeraddress ) {
-          return(
+    // const blackTurnStyle = (playeraddress) => {
+    //   if (this.state.currentGame[7]){
+    //     if (this.state.currentGame[4] !== playeraddress ) {
+    //       return(
             
-            <div className="thisplayer" color='white' backgroundColor='black' >
-              {{playeraddress}}
-            </div>
-            )
-        }
-      }
-      else {
-        return ( playeraddress)
-      }
-    }
+    //         <div className="thisplayer" color='white' backgroundColor='black' >
+    //           {{playeraddress}}
+    //         </div>
+    //         )
+    //     }
+    //   }
+    //   else {
+    //     return ( playeraddress)
+    //   }
+    // }
 
     const otherPlayer = () => {
       if ( this.state.currentGame.gState == "0") { return "◪"  }

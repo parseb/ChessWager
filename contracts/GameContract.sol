@@ -189,10 +189,13 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
     gameData storage game = games[myLastGame[msg.sender]];
     
     if ( onMoveStateCheck(myLastGame[msg.sender]) ) {
-      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
-      
+
       myLastGame[game.playerOne]= 0;
       myLastGame[game.playerTwo] = 0;
+      //reverse order
+      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
+      
+     
     }
   
   }
