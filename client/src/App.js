@@ -187,7 +187,7 @@ class App extends Component {
 
       if(event.event === "newGameCreatedEvent") {
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-        this.setState({ currentGame: event.returnValues, currentGameBoard: currentgame.currentGameBoard });
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
         console.log("NewGame Event - state:", this.state.currentGameBoard )
       }
 
@@ -348,7 +348,7 @@ class App extends Component {
               </Row>
               <hr />
               <Row>
-               
+               Game Info 
               </Row>
               <hr />
             </Card>
