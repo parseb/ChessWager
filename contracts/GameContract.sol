@@ -31,6 +31,8 @@ contract GameContract {
     uint wageSize; 
   }
 
+
+
   struct gameData {
     address playerOne;
     address playerTwo;
@@ -43,7 +45,7 @@ contract GameContract {
     uint totalGameTime;
     uint p1Time;
     uint p2Time;
-    uint8[3] materialG;
+    uint[3] materialState;
   }
   
   mapping (uint => gameData) public games; 
@@ -100,7 +102,7 @@ contract GameContract {
                           uint _wageSize,
                           string memory _currentGameBoard
                       ) public payable returns(uint justCreatedGameId) {
-    bool openGame;
+    
   
     games[gameId]= gameData({
                             playerOne: msg.sender,
@@ -117,7 +119,7 @@ contract GameContract {
                             totalGameTime: _totalTime *2,
                             p1Time: _totalTime,
                             p2Time: _totalTime,
-                            materialG: [39,39,78]
+                            materialState: [uint(1),uint(2),uint(3)]           
                             });
 //playerTwo is always white
 
@@ -198,7 +200,7 @@ contract GameContract {
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
-  function submitMove(string memory _submittedMove, uint8[3] memory _material) public {
+  function submitMove(string memory _submittedMove, uint[3] memory _material) public {
 
     string memory submitted = _submittedMove;
     require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
@@ -211,7 +213,7 @@ contract GameContract {
     }
     address other = otherPlayer(myLastGame[msg.sender]); 
 
-    game.materialG = _material;
+    game.materialState = _material;
 
 
 
@@ -237,9 +239,9 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
 
 ///////////BulkHudiEnd
 
-function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
-  //// can't really do this myself in solidity atm
-}
+// function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
+//   //// can't really do this myself in solidity atm
+// }
 
 
 

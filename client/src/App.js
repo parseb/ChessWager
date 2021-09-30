@@ -111,26 +111,30 @@ class App extends Component {
     let numbers= ['1','2','3','4','5','6','7','8']
     const valsdict = {  'p':1, 'P':1,
                         'b':3, 'B':3, 
-                        'k':3, 'K':3, 
+                        'n':3, 'N':3, 
                         'r':5, 'R':5,
-                        'q':9, 'Q':9 
+                        'q':9, 'Q':9, '/':0, 'k':0, 'K': 0 
                       }
+    let white= 0
+    let black=0
     console.log("submitted move", f);
-    let f2= f.split(" ")[0].split("")
+    const f2= f.split(" ")[0].split("")
     f2.forEach(c => {
       if (! parseInt(c)){
         if (c == c.toLowerCase()) {
-          materialscore[1] += valsdict[c] 
+          white += valsdict[c] 
         } else {
-          materialscore[0] += valsdict[c]
+          black += valsdict[c] 
         }
+      console.log(c, white, black)
       } 
     });
 
-    materialscore[2] = materialscore[0] + materialscore[1];
-    console.log(materialscore);
+   
+    materialscore=[white,black,white + black]
+    console.log(white, black);
    // 'r1bqkbnr/pppp1ppp/8/4B3/8/8/PPP1PPPP/RN1QKBNR b KQkq - 0 4'
-
+    
     await this.state.contract.methods.submitMove(f, materialscore).send({from: this.state.accounts[0]})
     // .then(
     //   this.getCurrentGame()
