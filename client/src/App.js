@@ -83,7 +83,7 @@ class App extends Component {
     const { accounts, contract, web3js } = this.state;
     //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
-    let createCall= await contract.methods.initializeGame(s.Player2Address,6921269,s.GamePerTime,s.TimeoutTime,s.WagerAmount,new Chess().fen(),"1","0")
+    let createCall= await contract.methods.initializeGame(s.Player2Address,s.GamePerTime,s.TimeoutTime,s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
   }
 
@@ -107,9 +107,31 @@ class App extends Component {
 
   submitsMove = async (f) =>{
     this.setState({currentGameBoard: f});
-
+    let materialscore=[0,0,0];
+    let numbers= ['1','2','3','4','5','6','7','8']
+    const valsdict = {  'p':1, 'P':1,
+                        'b':3, 'B':3, 
+                        'k':3, 'K':3, 
+                        'r':5, 'R':5,
+                        'q':9, 'Q':9 
+                      }
     console.log("submitted move", f);
-    await this.state.contract.methods.submitMove(f).send({from: this.state.accounts[0]})
+    let f2= f.split(" ")[0].split("")
+    f2.forEach(c => {
+      if (! parseInt(c)){
+        if (c == c.toLowerCase()) {
+          materialscore[1] += valsdict[c] 
+        } else {
+          materialscore[0] += valsdict[c]
+        }
+      } 
+    });
+
+    materialscore[2] = materialscore[0] + materialscore[1];
+    console.log(materialscore);
+   // 'r1bqkbnr/pppp1ppp/8/4B3/8/8/PPP1PPPP/RN1QKBNR b KQkq - 0 4'
+
+    await this.state.contract.methods.submitMove(f, materialscore).send({from: this.state.accounts[0]})
     // .then(
     //   this.getCurrentGame()
     // )
@@ -155,7 +177,8 @@ class App extends Component {
       if (event.event === "newMoveInGame") {
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
         this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
-        console.log("NewMove Event - state:", this.state.currentGameBoard )
+        console.log("NewMove Event - state:", this.state.currentGameBoard );
+        console.log("returned game", event.returnValues)
       }
 
       if(event.event === "newGameCreatedEvent") {
@@ -217,7 +240,7 @@ class App extends Component {
 
     const cancelGameButton= () => {
       // needed? maybe later
-      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][3]) < Date.now() ) {
+      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][3]) < Date.now() && (this.state.g_state == "1" ) ) {
         return (
           <Row>
             <Button variant="outline-warning" size="lg"  onClick={this.cancelGame}>

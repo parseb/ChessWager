@@ -26,13 +26,9 @@ contract GameContract {
   enum gameState {NoAssignedState, Staged, InProgress, Ended, Rejected }
   
   struct gameSettings {
-    uint16 startsAt;
-    bool openInvite;
     uint totalTime;
     uint timeoutTime;
-    uint wageSize;
-    uint8 p1color;
-    uint8 p2color; 
+    uint wageSize; 
   }
 
   struct gameData {
@@ -47,6 +43,7 @@ contract GameContract {
     uint totalGameTime;
     uint p1Time;
     uint p2Time;
+    uint8[3] materialG;
   }
   
   mapping (uint => gameData) public games; 
@@ -98,13 +95,11 @@ contract GameContract {
   }
 ////// Modifiers END
   function initializeGame(address _playerTwo,
-                          uint16 _startsAt,
                           uint16 _totalTime,
                           uint _timeoutTime,
                           uint _wageSize,
-                          string memory _currentGameBoard,
-                          uint8 _p1color ,
-                          uint8 _p2color) public payable returns(uint justCreatedGameId) {
+                          string memory _currentGameBoard
+                      ) public payable returns(uint justCreatedGameId) {
     bool openGame;
   
     games[gameId]= gameData({
@@ -113,15 +108,16 @@ contract GameContract {
                             gState: gameState.Staged,
                             currentGameBoard:_currentGameBoard,
                             lastMover: address(0),
-                            settings: gameSettings ({ startsAt: _startsAt,
-                                              openInvite: openGame,
+                            settings: gameSettings ({
                                               totalTime: _totalTime,
                                               timeoutTime:  block.timestamp + _timeoutTime * 1 minutes,
-                                              wageSize:  _wageSize, 
-                                              p1color: _p1color,
-                                              p2color: _p2color}),
+                                              wageSize:  _wageSize }),
                             gameBalance: msg.value,
-                            player2accepted: false
+                            player2accepted: false,
+                            totalGameTime: _totalTime *2,
+                            p1Time: _totalTime,
+                            p2Time: _totalTime,
+                            materialG: [39,39,78]
                             });
 //playerTwo is always white
 
@@ -202,7 +198,8 @@ contract GameContract {
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
-  function submitMove(string memory _submittedMove) public {
+  function submitMove(string memory _submittedMove, uint8[3] memory _material) public {
+
     string memory submitted = _submittedMove;
     require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
     gameData storage game= games[myLastGame[msg.sender]]; 
@@ -213,6 +210,11 @@ contract GameContract {
       game.currentGameBoard = submitted; 
     }
     address other = otherPlayer(myLastGame[msg.sender]); 
+
+    game.materialG = _material;
+
+
+
     emit newMoveInGame( msg.sender, other, string(prevState), game );
   }
 
@@ -234,6 +236,10 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
   }
 
 ///////////BulkHudiEnd
+
+function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
+  //// can't really do this myself in solidity atm
+}
 
 
 
