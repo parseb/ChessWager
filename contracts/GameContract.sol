@@ -46,6 +46,7 @@ contract GameContract {
     uint p1Time;
     uint p2Time;
     uint[3] materialState;
+    uint lastMoveTime;
   }
   
   mapping (uint => gameData) public games; 
@@ -119,7 +120,8 @@ contract GameContract {
                             totalGameTime: _totalTime *2,
                             p1Time: _totalTime,
                             p2Time: _totalTime,
-                            materialState: [uint(1),uint(2),uint(3)]           
+                            materialState: [uint(1),uint(2),uint(3)],
+                            lastMoveTime: 0           
                             });
 //playerTwo is always white
 
@@ -214,8 +216,22 @@ contract GameContract {
     address other = otherPlayer(myLastGame[msg.sender]); 
 
     game.materialState = _material;
+    
+    if( game.lastMoveTime > 0) {
+      
+      uint timeDif = block.timestamp - game.lastMoveTime;
 
+      if(other == game.playerTwo) {
+      //  this is player1
+      game.p1Time = game.p1Time - timeDif;
+    } else {
+      // this is player2
+      game.p2Time = game.p2Time - timeDif;
+    }
 
+    }
+    
+    game.lastMoveTime = block.timestamp; 
 
     emit newMoveInGame( msg.sender, other, string(prevState), game );
   }
