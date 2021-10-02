@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Countdown from 'react-countdown';
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
@@ -320,7 +321,8 @@ class App extends Component {
     }
 
     const resignGameButton= () => {
-      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")  ) {
+      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")  ) 
+      {
         return ( <Button variant="danger" size="lg" onClick={this.resignGame} > Resign </Button> )   
       }
     }
@@ -358,6 +360,41 @@ class App extends Component {
       }
     }
 
+    const otherPlayerCounter = () => {
+      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
+      // if (this.state.color === "black" && !isTurn)   
+      // {
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )
+      // }
+      //   else if (this.state.color === "white" && !isTurn)
+      // {
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+      // }
+      if (this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000") {
+        if (this.state.currentGame[1] === this.state.accounts[0]) { 
+          
+          let minutes = Math.floor(parseInt(this.state.currentGame[10]) / 60)
+          let secs= parseInt(this.state.currentGame[10]) - minutes * 60
+          return( <p>{minutes}:{secs}</p>)
+        } else {
+          console.log("this should be whiiiiiiteeeee yoooooooo")
+          let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
+          let secs= parseInt(this.state.currentGame[9]) - minutes * 60
+          return( <p>{minutes}:{secs}</p>)
+        }
+      }
+      
+    }
+
+    const thisPlayerCounter = () => {
+      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
+      if (this.state.color === "black" && isTurn) {
+        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+      } else if (this.state.color === "white" && isTurn)
+      {
+        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )  
+      }
+    }
     
 
      if (!this.state.web3) {
@@ -387,8 +424,9 @@ class App extends Component {
           <Row> 
             <Col>
             <Card>
-                
-              { otherPlayer() }
+              
+              { otherPlayer() } <br />
+              { otherPlayerCounter()}
            
            
             <hr />
@@ -398,7 +436,7 @@ class App extends Component {
               <Col>  </Col>
               </Row>
               <hr />
-              
+              { thisPlayerCounter() }
               { thisPlayer() }
            
             </Card>

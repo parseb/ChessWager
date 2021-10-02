@@ -230,13 +230,23 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
 
       if(other == game.playerTwo) {
       //  this is player1
-      game.p1Time = game.p1Time - timeDif;
+        if (timeDif > game.p1Time) { 
+          game.p1Time = 0;
+        } else {
+          game.p1Time = game.p1Time - timeDif;
+        }
+      
     } else {
       // this is player2
-      game.p2Time = game.p2Time - timeDif;
-      playerSwitch= 1;
+      if (timeDif > game.p2Time) { 
+          game.p2Time = 0;
+        } else {
+          game.p2Time = game.p2Time - timeDif;
+          playerSwitch= 1;
+        }
     }
-      game.totalGameTime = game.totalGameTime - timeDif;
+    //  game.totalGameTime = game.totalGameTime - timeDif;
+        game.totalGameTime = game.p1Time + game.p2Time;
     } 
     
      
@@ -278,6 +288,11 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
       
     }
   
+  }
+
+  function playerTimedOut() public {
+    //case: playerrefuses to move, time elapses, adversary 
+    //      needs to be able to claim victory if no streaming. if supefluid streaming - avoid defaulting penalty
   }
 
 ///////////BulkHudiEnd
