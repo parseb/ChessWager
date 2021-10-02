@@ -387,7 +387,7 @@ class App extends Component {
           <Row> 
             <Col>
             <Card>
-             
+                
               { otherPlayer() }
            
            

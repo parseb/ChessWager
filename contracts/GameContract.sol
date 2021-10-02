@@ -113,13 +113,13 @@ contract GameContract {
                             lastMover: address(0),
                             settings: gameSettings ({
                                               totalTime: _totalTime,
-                                              timeoutTime:  600 seconds,
+                                              timeoutTime: _timeoutTime,
                                               wageSize:  _wageSize }),
                             gameBalance: msg.value, 
                             player2accepted: false,
-                            totalGameTime: 600 seconds,
-                            p1Time: 300 seconds,
-                            p2Time: 300 seconds,
+                            totalGameTime: 600,
+                            p1Time: 300,
+                            p2Time: 300,
                             materialState: [uint(1),uint(2),uint(3)],
                             lastMoveTime:0   
                             });
@@ -212,15 +212,15 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
 
     string memory submitted = _submittedMove;
     require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
+    require(onMoveStateCheck(myLastGame[msg.sender]));
+    
     gameData storage game= games[myLastGame[msg.sender]]; 
     
     string memory prevState= string(game.currentGameBoard);
-    if(onMoveStateCheck(myLastGame[msg.sender])) {
-      game.lastMover= msg.sender;
-      game.currentGameBoard = submitted; 
-    }
     address other = otherPlayer(myLastGame[msg.sender]); 
-
+    game.lastMover= msg.sender;
+    game.currentGameBoard = submitted; 
+      
     game.materialState = _material;
     uint playerSwitch= 0;
 
@@ -244,11 +244,17 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
    
     //update last move time
     game.lastMoveTime = block.timestamp; 
-    // emit move event
+    claculateStreamFlowRate(game.gameBalance, game.totalGameTime, game.materialState, playerSwitch);
+    
     emit newMoveInGame( msg.sender, other, string(prevState), game );
+  
+    
+    
+    // emit move event
+    
 
   ///calculate stream flowrate
-    claculateStreamFlowRate(game.gameBalance, game.totalGameTime, game.materialState, playerSwitch);
+    
   
   /// starts / modifies stream 
 
@@ -279,12 +285,6 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
 // function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
 //   //// can't really do this myself in solidity atm
 // }
-
-
-
-
-
-
 
 
 }

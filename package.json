@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "solidity-coverage": "^0.7.17"
+  },
+  "dependencies": {
+    "truffle-plugin-debugger": "0.0.2"
   }
 }
