@@ -239,7 +239,7 @@ class App extends Component {
       if((this.state.g_state === "0" || this.state.g_state === "4") && !this.state.currentGame.player2accepted ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
-          return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />
+        return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />
       }
     }
 
@@ -377,7 +377,7 @@ class App extends Component {
           let secs= parseInt(this.state.currentGame[10]) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
         } else {
-          console.log("this should be whiiiiiiteeeee yoooooooo")
+          
           let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
           let secs= parseInt(this.state.currentGame[9]) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
