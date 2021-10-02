@@ -113,15 +113,15 @@ contract GameContract {
                             lastMover: address(0),
                             settings: gameSettings ({
                                               totalTime: _totalTime,
-                                              timeoutTime:  block.timestamp + _timeoutTime * 1 minutes,
+                                              timeoutTime:  600 seconds,
                                               wageSize:  _wageSize }),
-                            gameBalance: msg.value,
+                            gameBalance: msg.value, 
                             player2accepted: false,
-                            totalGameTime: _totalTime *2,
-                            p1Time: _totalTime,
-                            p2Time: _totalTime,
+                            totalGameTime: 600 seconds,
+                            p1Time: 300 seconds,
+                            p2Time: 300 seconds,
                             materialState: [uint(1),uint(2),uint(3)],
-                            lastMoveTime: 0           
+                            lastMoveTime:0   
                             });
 //playerTwo is always white
 
@@ -198,7 +198,13 @@ contract GameContract {
     }
   }
   
-  
+  function claculateStreamFlowRate(uint _availableBudget, 
+                                uint _totalTimeRemaining,
+                                uint[3] memory _materialShare,
+                                uint p01Switch )
+                                internal pure returns( uint rawFlowRate) {
+rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
+                                }
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
@@ -216,7 +222,8 @@ contract GameContract {
     address other = otherPlayer(myLastGame[msg.sender]); 
 
     game.materialState = _material;
-    
+    uint playerSwitch= 0;
+
     if( game.lastMoveTime > 0) {
       
       uint timeDif = block.timestamp - game.lastMoveTime;
@@ -227,13 +234,27 @@ contract GameContract {
     } else {
       // this is player2
       game.p2Time = game.p2Time - timeDif;
+      playerSwitch= 1;
     }
-
-    }
+      game.totalGameTime = game.totalGameTime - timeDif;
+    } 
     
+     
+    // update remaining total gametime
+   
+    //update last move time
     game.lastMoveTime = block.timestamp; 
-
+    // emit move event
     emit newMoveInGame( msg.sender, other, string(prevState), game );
+
+  ///calculate stream flowrate
+    claculateStreamFlowRate(game.gameBalance, game.totalGameTime, game.materialState, playerSwitch);
+  
+  /// starts / modifies stream 
+
+
+  /// stop stream on low gamebalance
+  
   }
 
 
