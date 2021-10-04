@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Countdown from 'react-countdown';
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
@@ -21,10 +22,11 @@ class App extends Component {
              contract: null,
              gamesTotalCount: 0,
              openGamesList: [],
-             currentGame: {},
+             currentGame: '',
              currentGameBoard:new Chess().fen(),
-             color: 'black',
-             g_state:"0"
+             color: "black",
+             g_state:"0",
+             stableTimeleft:0
             }
   }
   
@@ -71,8 +73,8 @@ class App extends Component {
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
     // let color= this.state.currentGame[1] == this.state.accounts[0] 
     // if (color) { this.setState({ color:"black" })}
-    let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: playcolor, g_state: currentgame.gState });
+    //let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
+    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: currentgame.gState });
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
 
@@ -83,17 +85,18 @@ class App extends Component {
     const { accounts, contract, web3js } = this.state;
     //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
-    let createCall= await contract.methods.initializeGame(s.Player2Address,0,s.GamePerTime,"0",s.WagerAmount,new Chess().fen())
+    let createCall= await contract.methods.initializeGame(s.Player2Address,s.GamePerTime,s.TimeoutTime,s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
   }
 
   acceptGameInvite= async () =>{
     console.log("clicked Accepted")
     const { accounts, contract, web3js } = this.state;
-    let createCall= await contract.methods.playerTwoAccepted(true)
+    await contract.methods.playerTwoAccepted(true)
     .send({from: accounts[0], value: this.state.currentGame.settings.wageSize});
     
-    this.setState({color:'white'})
+    
+    //this.setState({color:'white'})
   }
 
   declineGameInvite= async () =>{
@@ -106,9 +109,35 @@ class App extends Component {
 
   submitsMove = async (f) =>{
     this.setState({currentGameBoard: f});
-
+    let materialscore=[0,0,0];
+    let numbers= ['1','2','3','4','5','6','7','8']
+    const valsdict = {  'p':1, 'P':1,
+                        'b':3, 'B':3, 
+                        'n':3, 'N':3, 
+                        'r':5, 'R':5,
+                        'q':9, 'Q':9, '/':0, 'k':0, 'K': 0 
+                      }
+    let white= 0
+    let black=0
     console.log("submitted move", f);
-    this.state.contract.methods.submitMove(f).send({from: this.state.accounts[0]})
+    const f2= f.split(" ")[0].split("")
+    f2.forEach(c => {
+      if (! parseInt(c)){
+        if (c == c.toLowerCase()) {
+          white += valsdict[c] 
+        } else {
+          black += valsdict[c] 
+        }
+      console.log(c, white, black)
+      } 
+    });
+
+   
+    materialscore=[white,black,white + black]
+    console.log(white, black);
+   // 'r1bqkbnr/pppp1ppp/8/4B3/8/8/PPP1PPPP/RN1QKBNR b KQkq - 0 4'
+    
+    await this.state.contract.methods.submitMove(f, materialscore).send({from: this.state.accounts[0]})
     // .then(
     //   this.getCurrentGame()
     // )
@@ -116,9 +145,21 @@ class App extends Component {
   }
 
   resignGame = async () => {
-    this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
+    await this.state.contract.methods.resignGame().send({from: this.state.accounts[0]})
+    this.setState({ g_state: "0" })
   }
   
+
+  cancelGame = async () => {
+    await this.state.contract.methods.cancelGame().send({from:this.state.accounts[0]});
+    console.log("Cancel Game request sent")
+  }
+
+  otherPlayerTimedOut = async () => {
+    await this.state.contract.methods.otherPlayerTimedOut().send({from:this.state.accounts[0]})
+    console.log("Adversary timeout request submitted.")
+  }
+
 
   eventListen= async () => {
     let contract  = await this.state.contract;
@@ -148,7 +189,8 @@ class App extends Component {
       if (event.event === "newMoveInGame") {
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
         this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
-        console.log("NewMove Event - state:", this.state.currentGameBoard )
+        console.log("NewMove Event - state:", this.state.currentGameBoard );
+        console.log("returned game", event.returnValues)
       }
 
       if(event.event === "newGameCreatedEvent") {
@@ -167,9 +209,17 @@ class App extends Component {
       if(event.event === "playerResigned") {
         console.log("Player " + event.returnValues[0]  + " Resigned")
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: "0" });
+        
       }
 
+      if(event.event === "gameCanceled") {
+        console.log("Game Cancelled")
+        const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: "0" });
+        
+      }
+    
      
       
   })
@@ -193,17 +243,30 @@ class App extends Component {
     const gamestates= {0:"Stateless", 1: "Staged", 2:"In Progress", 3: "Ended", 4: "Rejected"}
     const createGame=  () => {
       
-      if(this.state.g_state == "0" || this.state.g_state == "4" ){
+      if((this.state.g_state === "0" || this.state.g_state === "4") && !this.state.currentGame.player2accepted ){
         return  <CreateNew contract={this.state.contract} sendCreateGame={this.sendCreateGame} blank={this.state.currentGame} userAddress={this.state.accounts[0]} /> 
       } else {
-          return <ChessBoardComponent gstate={this.state.g_state} submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} getcurrent={this.getCurrentGame} account={this.state.accounts[0]} color={this.state.color} />
+        return <ChessBoardComponent submitmove={this.submitsMove} currentboard={this.state.currentGameBoard} currentgame={this.state.currentGame} account={this.state.accounts[0]}  />
+      }
+    }
+
+    const cancelGameButton= () => {
+      // needed? maybe later
+      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][1]) < Date.now() && (this.state.g_state == "1" ) ) {
+        return (
+          <Row>
+            <Button variant="outline-warning" size="lg"  onClick={this.cancelGame}>
+             Cancel Game and get Refund <br /> 
+            </Button>
+          </Row>
+        )
       }
     }
 
     const acceptGameButton = () => {
-      if (this.state.currentGame[0] == this.state.accounts[0]) {
+      if (this.state.currentGame[0] === this.state.accounts[0]) {
         return  ( <h6> Invite Accepted: {String(this.state.currentGame.player2accepted)} </h6>)
-      } else if (this.state.currentGame[1] == this.state.accounts[0] && ( !this.state.currentGame.player2accepted)) {
+      } else if (this.state.currentGame[1] === this.state.accounts[0] && ( !this.state.currentGame.player2accepted)) {
           
         return(
       <Col>
@@ -234,38 +297,39 @@ class App extends Component {
       }
     }
 
-    const blackTurnStyle = (playeraddress) => {
-      if (this.state.currentGame[7]){
-        if (this.state.currentGame[4] !== playeraddress ) {
-          return(
+    // const blackTurnStyle = (playeraddress) => {
+    //   if (this.state.currentGame[7]){
+    //     if (this.state.currentGame[4] !== playeraddress ) {
+    //       return(
             
-            <div className="thisplayer" color='white' backgroundColor='black' >
-              {{playeraddress}}
-            </div>
-            )
-        }
-      }
-      else {
-        return ( playeraddress)
-      }
-    }
+    //         <div className="thisplayer" color='white' backgroundColor='black' >
+    //           {{playeraddress}}
+    //         </div>
+    //         )
+    //     }
+    //   }
+    //   else {
+    //     return ( playeraddress)
+    //   }
+    // }
 
     const otherPlayer = () => {
-      if ( this.state.currentGame.gState == "0") { return "◪"  }
-      else if( this.state.currentGame[0] == this.state.accounts[0] ) {
+      if ( this.state.currentGame.gState === "0") { return "◪"  }
+      else if( this.state.currentGame[0] === this.state.accounts[0] ) {
         return ( this.state.currentGame[1] )
       } else { return this.state.currentGame[0]}
     }
 
     const thisPlayer = () => {
-      if ( this.state.currentGame.gState == "0") { 
+      if ( this.state.currentGame.gState === "0") { 
         return "◩"  
       }
      else { return this.state.accounts[0]}
     }
 
     const resignGameButton= () => {
-      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")  ) {
+      if ((this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")  ) 
+      {
         return ( <Button variant="danger" size="lg" onClick={this.resignGame} > Resign </Button> )   
       }
     }
@@ -289,7 +353,7 @@ class App extends Component {
               <hr />
               <Row>
                 <Col> {resignGameButton()}</Col>
-                
+                <Col>{cancelGameButton()}</Col>
               </Row>
               <hr />
               <Row>
@@ -303,6 +367,51 @@ class App extends Component {
       }
     }
 
+    const otherPlayerCounter = () => {
+      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
+      // if (this.state.color === "black" && !isTurn)   
+      // {
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )
+      // }
+      //   else if (this.state.color === "white" && !isTurn)
+      // {
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+      // }
+      if (this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000") {
+        if (this.state.currentGame[1] === this.state.accounts[0]) { 
+          
+          let minutes = Math.floor(parseInt(this.state.currentGame[10]) / 60)
+          let secs= parseInt(this.state.currentGame[10]) - minutes * 60
+          return( <p>{minutes}:{secs}</p>)
+        } else {
+          
+          let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
+          let secs= parseInt(this.state.currentGame[9]) - minutes * 60
+          return( <p>{minutes}:{secs}</p>)
+        }
+      }
+      
+    }
+
+    const claimTimeoutVictory = () => {
+      if (parseInt(this.state.currentGame[9])< 1 || parseInt(this.state.currentGame[10]) < 1) {
+        if(this.state.accounts[0] !== this.state.currentGame.firstToZero) {
+          return( 
+            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Resign </Button> 
+          )
+        }
+      }
+    }
+
+    const thisPlayerCounter = () => {
+      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
+      if (this.state.color === "black" && isTurn) {
+        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+      } else if (this.state.color === "white" && isTurn)
+      {
+        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )  
+      }
+    }
     
 
      if (!this.state.web3) {
@@ -332,8 +441,9 @@ class App extends Component {
           <Row> 
             <Col>
             <Card>
-             
-              { otherPlayer() }
+              
+              { otherPlayer() } <br />
+              { otherPlayerCounter()}
            
            
             <hr />
@@ -343,7 +453,7 @@ class App extends Component {
               <Col>  </Col>
               </Row>
               <hr />
-              
+              { thisPlayerCounter() }
               { thisPlayer() }
            
             </Card>

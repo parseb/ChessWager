@@ -24,5 +24,6 @@ module.exports = {
       //network_id: 1337,
       network_id: "*"
     }
-  }
+  },
+  plugins: ["solidity-coverage",  "truffle-plugin-debugger"]
 };

@@ -26,12 +26,12 @@ contract GameContract {
   enum gameState {NoAssignedState, Staged, InProgress, Ended, Rejected }
   
   struct gameSettings {
-    uint16 startsAt;
-    bool openInvite;
-    uint16 totalTime;
-    uint16 timeoutTime;
+    uint totalTime;
+    uint timeoutTime;
     uint wageSize; 
   }
+
+
 
   struct gameData {
     address playerOne;
@@ -42,12 +42,18 @@ contract GameContract {
     gameSettings settings;
     uint gameBalance;
     bool player2accepted;
+    uint totalGameTime;
+    uint p1Time;
+    uint p2Time;
+    uint[3] materialState;
+    uint lastMoveTime;
+    address firstToZero;
   }
   
   mapping (uint => gameData) public games; 
   mapping (address => uint) myLastGame;
-  address[32] gameOwners;
-  address[32] gamePlayers;
+
+///////////BulkHudiStart
 
   event newGameCreatedEvent(address indexed _playerOne, address indexed _playerTwo);
 
@@ -76,10 +82,16 @@ contract GameContract {
     return true;
   }
 
-  function noOtherGameOnCreate(address player1) internal view returns(bool) {
-    gameData memory lastPlayer1Game = games[myLastGame[player1]]; 
+  // function player2NotInAGame(uint _gameid) internal view returns (bool) {
+  //   gameData memory game = games[_gameId];
+  //   require(myLastGame[game.playerTwo] == 0, "Player Two already in a game");
+  //   return true;
+  // } 
 
-    if( (lastPlayer1Game.gState == gameState.Ended) || (lastPlayer1Game.gState == gameState.NoAssignedState) ){
+  function noOtherGameOnCreate(address player) internal view returns(bool) {
+    gameData memory lastPlayerGame = games[myLastGame[player]]; 
+
+    if( (lastPlayerGame.gState == gameState.Ended) || (lastPlayerGame.gState == gameState.NoAssignedState) || myLastGame[player] == 0 ){
       return true;
     } else {
       return false;
@@ -87,12 +99,12 @@ contract GameContract {
   }
 ////// Modifiers END
   function initializeGame(address _playerTwo,
-                          uint16 _startsAt,
                           uint16 _totalTime,
-                          uint16 _timeoutTime,
+                          uint _timeoutTime,
                           uint _wageSize,
-                          string memory _currentGameBoard ) public payable returns(uint justCreatedGameId) {
-    bool openGame;
+                          string memory _currentGameBoard
+                      ) public payable returns(uint justCreatedGameId) {
+    
   
     games[gameId]= gameData({
                             playerOne: msg.sender,
@@ -100,22 +112,27 @@ contract GameContract {
                             gState: gameState.Staged,
                             currentGameBoard:_currentGameBoard,
                             lastMover: address(0),
-                            settings: gameSettings ({ startsAt: _startsAt,
-                                              openInvite: openGame,
+                            settings: gameSettings ({
                                               totalTime: _totalTime,
-                                              timeoutTime: _timeoutTime,
+                                              timeoutTime: _timeoutTime + block.timestamp,
                                               wageSize:  _wageSize }),
-                            gameBalance: msg.value,
-                            player2accepted: false
+                            gameBalance: msg.value, 
+                            player2accepted: false,
+                            totalGameTime: 600,
+                            p1Time: 300,
+                            p2Time: 300,
+                            materialState: [uint(1),uint(2),uint(3)],
+                            lastMoveTime:0,
+                            firstToZero: address(0)   
                             });
-//playeTwo is always white
+//playerTwo is always white
 
     require((noOtherGameOnCreate(msg.sender) && noOtherGameOnCreate(_playerTwo)), "One of the players has a game in progress.");
     myLastGame[msg.sender]= gameId;
     myLastGame[_playerTwo]= gameId;
     
     justCreatedGameId = gameId;
-    
+  
     emit newGameCreatedEvent(msg.sender,_playerTwo);
     gameId++;
 
@@ -133,10 +150,29 @@ contract GameContract {
   function checkAndReturnCurrentGame() public view returns (gameData memory game) {
     game= games[myLastGame[msg.sender]];
    }
+
+    event gameCanceled(address indexed submittedby, uint refundedAmount);
+
+
+   function cancelGame() public payable {
+     gameData memory game = games[myLastGame[msg.sender]];
+     if((! game.player2accepted) && (game.settings.timeoutTime < block.timestamp) && (msg.sender == game.playerOne)) {
+      myLastGame[game.playerOne]= 0;
+      myLastGame[game.playerTwo]= 0; 
+      uint refundAmount = game.settings.wageSize - (game.settings.wageSize / 99); 
+      // a proper gas risk approch would be cool
+      // case: player2 accept on player1 cancel? unlikely - possible?
+      // a game balance mapping would be cool
+      (bool success, ) = msg.sender.call{value:refundAmount}("");
+      require(success, "Refund failed.");  
+
+      emit gameCanceled(msg.sender, refundAmount);  
+    }
+   }
   
   event player2Accepted(address indexed _player1, address indexed _player2, bool _accepted);
   
-  function timeOutforAccept() public {}
+  
 
   function playerTwoAccepted(bool _accepted) public payable  {
     if (! _accepted) {
@@ -164,22 +200,78 @@ contract GameContract {
     }
   }
   
-  
+  function claculateStreamFlowRate(uint _availableBudget, 
+                                uint _totalTimeRemaining,
+                                uint[3] memory _materialShare,
+                                uint p01Switch )
+                                internal pure returns( uint rawFlowRate) {
+  rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
+                                }
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
-  function submitMove(string memory _submittedMove) public {
+  function submitMove(string memory _submittedMove, uint[3] memory _material) public {
+
     string memory submitted = _submittedMove;
     require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
+    require(onMoveStateCheck(myLastGame[msg.sender]));
+    
     gameData storage game= games[myLastGame[msg.sender]]; 
     
     string memory prevState= string(game.currentGameBoard);
-    if(onMoveStateCheck(myLastGame[msg.sender])) {
-      game.lastMover= msg.sender;
-      game.currentGameBoard = submitted; 
-    }
     address other = otherPlayer(myLastGame[msg.sender]); 
+    game.lastMover= msg.sender;
+    game.currentGameBoard = submitted; 
+      
+    game.materialState = _material;
+    uint playerSwitch= 0;
+
+    if( game.lastMoveTime > 0) {
+      
+      uint timeDif = block.timestamp - game.lastMoveTime;
+
+      if(other == game.playerTwo) {
+      //  this is player1
+        if (timeDif > game.p1Time) { 
+          game.p1Time = 0;
+          game.firstToZero = game.playerOne;
+        } else {
+          game.p1Time = game.p1Time - timeDif;
+        }
+      
+    } else {
+      // this is player2
+      if (timeDif > game.p2Time) { 
+          game.p2Time = 0;
+          game.firstToZero = game.playerTwo;
+        } else {
+          game.p2Time = game.p2Time - timeDif;
+          playerSwitch= 1;
+        }
+    }
+    //  game.totalGameTime = game.totalGameTime - timeDif;
+        game.totalGameTime = game.p1Time + game.p2Time;
+    } 
+    
+     
+    // update remaining total gametime
+   
+    //update last move time
+    game.lastMoveTime = block.timestamp; 
+    claculateStreamFlowRate(game.gameBalance, game.totalGameTime, game.materialState, playerSwitch);
+    
     emit newMoveInGame( msg.sender, other, string(prevState), game );
+  
+    
+
+  ///calculate stream flowrate
+    
+  
+  /// starts / modifies stream 
+
+
+  /// stop stream on low gamebalance
+  
   }
 
 
@@ -189,12 +281,51 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
     gameData storage game = games[myLastGame[msg.sender]];
     
     if ( onMoveStateCheck(myLastGame[msg.sender]) ) {
-      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
-      
+
       myLastGame[game.playerOne]= 0;
       myLastGame[game.playerTwo] = 0;
+      //reverse order
+      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
+      
     }
   
   }
+
+  function otherPlayerTimedOut() public {
+    //case1: playerrefuses to move, time elapses, adversary needs to be able to claim victory if no streaming. if supefluid streaming - avoid defaulting penalty
+    //case2: white accepts game but never moves (accept timeout titme  + extra 60 seconds)
+      uint gId= myLastGame[msg.sender];
+      gameData memory game = games[gId];
+      bool whiteNoMoveCondition = (game.settings.timeoutTime < (block.timestamp + 60)) && (game.lastMover == address(0));
+      //require(game.firstToZero != address(0), "No player timed out yet");
+      require( (otherPlayer(gId) == game.firstToZero) || whiteNoMoveCondition, "Adversary did not timeout yet");
+    
+      // Modify state, execute timeout logic #@@branch
+
+  }
+
+  // function timeOutforAccept() public {
+  //   uint gId= myLastGame[msg.sender];
+  //   gameData memory game = games[myLastGame[msg.sender]];
+  //   if ( ( game.settings.timeoutTime < block.timestamp ) && (! game.player2accepted ) ) {
+  //     myLastGame[otherPlayer(gId)] = 0;
+  //     myLastGame[msg.sender] = 0;
+
+  //     //refund
+  //   }
+
+  //   // handled in cancelGame 
+  // } 
+
+
+
+  // include edge case when white accepts game, but never moves.
+
+///////////BulkHudiEnd
+
+// function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
+//   //// can't really do this myself in solidity atm
+// }
+
 
 }

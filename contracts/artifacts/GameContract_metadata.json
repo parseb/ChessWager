@@ -1,0 +1,662 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "submittedby",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "refundedAmount",
+						"type": "uint256"
+					}
+				],
+				"name": "gameCanceled",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_playerOne",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_playerTwo",
+						"type": "address"
+					}
+				],
+				"name": "newGameCreatedEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "submittedby",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "otherPlayer",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "prevState",
+						"type": "string"
+					},
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "playerOne",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "playerTwo",
+								"type": "address"
+							},
+							{
+								"internalType": "enum GameContract.gameState",
+								"name": "gState",
+								"type": "uint8"
+							},
+							{
+								"internalType": "string",
+								"name": "currentGameBoard",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "lastMover",
+								"type": "address"
+							},
+							{
+								"components": [
+									{
+										"internalType": "uint256",
+										"name": "totalTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "timeoutTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "wageSize",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct GameContract.gameSettings",
+								"name": "settings",
+								"type": "tuple"
+							},
+							{
+								"internalType": "uint256",
+								"name": "gameBalance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "player2accepted",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "totalGameTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p1Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p2Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256[3]",
+								"name": "materialState",
+								"type": "uint256[3]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lastMoveTime",
+								"type": "uint256"
+							}
+						],
+						"indexed": false,
+						"internalType": "struct GameContract.gameData",
+						"name": "current",
+						"type": "tuple"
+					}
+				],
+				"name": "newMoveInGame",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_player1",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "_player2",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "_accepted",
+						"type": "bool"
+					}
+				],
+				"name": "player2Accepted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "submittedby",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "otherPlayer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "OtherPlayerNotLastMovedThatResigned",
+						"type": "address"
+					}
+				],
+				"name": "playerResigned",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "cancelGame",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "checkAndReturnCurrentGame",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "playerOne",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "playerTwo",
+								"type": "address"
+							},
+							{
+								"internalType": "enum GameContract.gameState",
+								"name": "gState",
+								"type": "uint8"
+							},
+							{
+								"internalType": "string",
+								"name": "currentGameBoard",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "lastMover",
+								"type": "address"
+							},
+							{
+								"components": [
+									{
+										"internalType": "uint256",
+										"name": "totalTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "timeoutTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "wageSize",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct GameContract.gameSettings",
+								"name": "settings",
+								"type": "tuple"
+							},
+							{
+								"internalType": "uint256",
+								"name": "gameBalance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "player2accepted",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "totalGameTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p1Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p2Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256[3]",
+								"name": "materialState",
+								"type": "uint256[3]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lastMoveTime",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct GameContract.gameData",
+						"name": "game",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "games",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "playerOne",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "playerTwo",
+						"type": "address"
+					},
+					{
+						"internalType": "enum GameContract.gameState",
+						"name": "gState",
+						"type": "uint8"
+					},
+					{
+						"internalType": "string",
+						"name": "currentGameBoard",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "lastMover",
+						"type": "address"
+					},
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "totalTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timeoutTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "wageSize",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct GameContract.gameSettings",
+						"name": "settings",
+						"type": "tuple"
+					},
+					{
+						"internalType": "uint256",
+						"name": "gameBalance",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "player2accepted",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalGameTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "p1Time",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "p2Time",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "lastMoveTime",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "gId",
+						"type": "uint256"
+					}
+				],
+				"name": "getGame",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "playerOne",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "playerTwo",
+								"type": "address"
+							},
+							{
+								"internalType": "enum GameContract.gameState",
+								"name": "gState",
+								"type": "uint8"
+							},
+							{
+								"internalType": "string",
+								"name": "currentGameBoard",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "lastMover",
+								"type": "address"
+							},
+							{
+								"components": [
+									{
+										"internalType": "uint256",
+										"name": "totalTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "timeoutTime",
+										"type": "uint256"
+									},
+									{
+										"internalType": "uint256",
+										"name": "wageSize",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct GameContract.gameSettings",
+								"name": "settings",
+								"type": "tuple"
+							},
+							{
+								"internalType": "uint256",
+								"name": "gameBalance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "player2accepted",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "totalGameTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p1Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "p2Time",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256[3]",
+								"name": "materialState",
+								"type": "uint256[3]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lastMoveTime",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct GameContract.gameData",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getLastGameId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_playerTwo",
+						"type": "address"
+					},
+					{
+						"internalType": "uint16",
+						"name": "_totalTime",
+						"type": "uint16"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timeoutTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_wageSize",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_currentGameBoard",
+						"type": "string"
+					}
+				],
+				"name": "initializeGame",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "justCreatedGameId",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_accepted",
+						"type": "bool"
+					}
+				],
+				"name": "playerTwoAccepted",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "resignGame",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_newOwner",
+						"type": "address"
+					}
+				],
+				"name": "setNewOwner",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_submittedMove",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256[3]",
+						"name": "_material",
+						"type": "uint256[3]"
+					}
+				],
+				"name": "submitMove",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "timeOutforAccept",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"github/ChessWager/contracts/GameContract.sol": "GameContract"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"github/ChessWager/contracts/GameContract.sol": {
+			"keccak256": "0x2edbf5b93fa173f993e0ee61662f90d53c1b17cf404c6a72b742f4362bcda612",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://254a4b3896b92c26864454d5288fb2365170d42d313c2eb9f61a79cd19e7099b",
+				"dweb:/ipfs/QmSnBhb7NMa7UoU2M12rHTdyC4GSMVnTHsXCNbhUgAVxgd"
+			]
+		}
+	},
+	"version": 1
+}

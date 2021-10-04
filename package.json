@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "solidity-coverage": "^0.7.17"
+  },
+  "dependencies": {
+    "react-countdown": "^2.3.2",
+    "truffle-plugin-debugger": "0.0.2"
+  }
+}
