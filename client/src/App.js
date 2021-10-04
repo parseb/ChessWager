@@ -25,7 +25,8 @@ class App extends Component {
              currentGame: '',
              currentGameBoard:new Chess().fen(),
              color: "black",
-             g_state:"0"
+             g_state:"0",
+             stableTimeleft:0
             }
   }
   
@@ -154,6 +155,12 @@ class App extends Component {
     console.log("Cancel Game request sent")
   }
 
+  otherPlayerTimedOut = async () => {
+    await this.state.contract.methods.otherPlayerTimedOut().send({from:this.state.accounts[0]})
+    console.log("Adversary timeout request submitted.")
+  }
+
+
   eventListen= async () => {
     let contract  = await this.state.contract;
     console.log("CONNNTRRACTT", contract)
@@ -245,7 +252,7 @@ class App extends Component {
 
     const cancelGameButton= () => {
       // needed? maybe later
-      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][3]) < Date.now() && (this.state.g_state == "1" ) ) {
+      if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][1]) < Date.now() && (this.state.g_state == "1" ) ) {
         return (
           <Row>
             <Button variant="outline-warning" size="lg"  onClick={this.cancelGame}>
@@ -384,6 +391,16 @@ class App extends Component {
         }
       }
       
+    }
+
+    const claimTimeoutVictory = () => {
+      if (parseInt(this.state.currentGame[9])< 1 || parseInt(this.state.currentGame[10]) < 1) {
+        if(this.state.accounts[0] !== this.state.currentGame.firstToZero) {
+          return( 
+            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Resign </Button> 
+          )
+        }
+      }
     }
 
     const thisPlayerCounter = () => {

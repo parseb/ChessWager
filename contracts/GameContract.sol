@@ -47,6 +47,7 @@ contract GameContract {
     uint p2Time;
     uint[3] materialState;
     uint lastMoveTime;
+    address firstToZero;
   }
   
   mapping (uint => gameData) public games; 
@@ -113,7 +114,7 @@ contract GameContract {
                             lastMover: address(0),
                             settings: gameSettings ({
                                               totalTime: _totalTime,
-                                              timeoutTime: _timeoutTime,
+                                              timeoutTime: _timeoutTime + block.timestamp,
                                               wageSize:  _wageSize }),
                             gameBalance: msg.value, 
                             player2accepted: false,
@@ -121,7 +122,8 @@ contract GameContract {
                             p1Time: 300,
                             p2Time: 300,
                             materialState: [uint(1),uint(2),uint(3)],
-                            lastMoveTime:0   
+                            lastMoveTime:0,
+                            firstToZero: address(0)   
                             });
 //playerTwo is always white
 
@@ -170,7 +172,7 @@ contract GameContract {
   
   event player2Accepted(address indexed _player1, address indexed _player2, bool _accepted);
   
-  function timeOutforAccept() public {}
+  
 
   function playerTwoAccepted(bool _accepted) public payable  {
     if (! _accepted) {
@@ -203,7 +205,7 @@ contract GameContract {
                                 uint[3] memory _materialShare,
                                 uint p01Switch )
                                 internal pure returns( uint rawFlowRate) {
-rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
+  rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
                                 }
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
@@ -232,6 +234,7 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
       //  this is player1
         if (timeDif > game.p1Time) { 
           game.p1Time = 0;
+          game.firstToZero = game.playerOne;
         } else {
           game.p1Time = game.p1Time - timeDif;
         }
@@ -240,6 +243,7 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
       // this is player2
       if (timeDif > game.p2Time) { 
           game.p2Time = 0;
+          game.firstToZero = game.playerTwo;
         } else {
           game.p2Time = game.p2Time - timeDif;
           playerSwitch= 1;
@@ -258,9 +262,6 @@ rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switc
     
     emit newMoveInGame( msg.sender, other, string(prevState), game );
   
-    
-    
-    // emit move event
     
 
   ///calculate stream flowrate
@@ -290,10 +291,35 @@ event playerResigned(address indexed submittedby, address indexed otherPlayer, a
   
   }
 
-  function playerTimedOut() public {
-    //case: playerrefuses to move, time elapses, adversary 
-    //      needs to be able to claim victory if no streaming. if supefluid streaming - avoid defaulting penalty
+  function otherPlayerTimedOut() public {
+    //case1: playerrefuses to move, time elapses, adversary needs to be able to claim victory if no streaming. if supefluid streaming - avoid defaulting penalty
+    //case2: white accepts game but never moves (accept timeout titme  + extra 60 seconds)
+      uint gId= myLastGame[msg.sender];
+      gameData memory game = games[gId];
+      bool whiteNoMoveCondition = (game.settings.timeoutTime < (block.timestamp + 60)) && (game.lastMover == address(0));
+      //require(game.firstToZero != address(0), "No player timed out yet");
+      require( (otherPlayer(gId) == game.firstToZero) || whiteNoMoveCondition, "Adversary did not timeout yet");
+    
+      // Modify state, execute timeout logic #@@branch
+
   }
+
+  // function timeOutforAccept() public {
+  //   uint gId= myLastGame[msg.sender];
+  //   gameData memory game = games[myLastGame[msg.sender]];
+  //   if ( ( game.settings.timeoutTime < block.timestamp ) && (! game.player2accepted ) ) {
+  //     myLastGame[otherPlayer(gId)] = 0;
+  //     myLastGame[msg.sender] = 0;
+
+  //     //refund
+  //   }
+
+  //   // handled in cancelGame 
+  // } 
+
+
+
+  // include edge case when white accepts game, but never moves.
 
 ///////////BulkHudiEnd
 

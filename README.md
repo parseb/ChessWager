@@ -16,18 +16,21 @@ Guess... that's about it.
 <br>
 
 ### Known Unknows / Design Choices
-* Best game state for wager deposit (at creation and at join VS at end execution)
+
+* Asymetric denial of service - player 2 denying game nees to pay gas at this stage. Could be refunded out of game creator staked wager. Player 1 pays more gas than player 2... loose a lot -> loose a bit, DoS logic.
+
 * Secret asymetric bet size (requires endgame state player cooperation?)
-* No frontend option -> onchain state and execution
-* Identity management (in-browser persistent authentication)
-* Storing moves onchain -> unnecessary overhead or worth it
-* Game parametes: {global_time_limit, on_move_time_increment, timeout_nomove, timeout_noshow, bet_size, color_random, third_party_address, player1_address, player2_address}
-* Predeterined third party donation wallet options (EDRi, EFF, WWF)
+* No frontend option -> onchain state and execution (problem: material advantage and valid meoves calculated offchain... can be onchain.)
+* Identity management (in-browser persistent authentication) (done)
+* Storing moves onchain -> unnecessary overhead or worth it (partial history)
+
+* Predeterined third party donation wallet options (EDRi, EFF, WWF) (maybe)  
 
 <br>
 
 ### Problems
 * Cheating (detection / escrow / blind peer review VS cheaters_be_cheating (it_is_what_it_is) VS cheat as ingame variable)
+
 
 <br>
 
