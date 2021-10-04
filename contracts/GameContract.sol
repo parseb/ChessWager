@@ -29,6 +29,7 @@ contract GameContract {
     uint totalTime;
     uint timeoutTime;
     uint wageSize; 
+    uint gameBalance;
   }
 
 
@@ -40,7 +41,7 @@ contract GameContract {
     string currentGameBoard;
     address lastMover;
     gameSettings settings;
-    uint gameBalance;
+    
     bool player2accepted;
     uint totalGameTime;
     uint p1Time;
@@ -115,8 +116,9 @@ contract GameContract {
                             settings: gameSettings ({
                                               totalTime: _totalTime,
                                               timeoutTime: _timeoutTime + block.timestamp,
-                                              wageSize:  _wageSize }),
-                            gameBalance: msg.value, 
+                                              wageSize:  _wageSize,
+                                              gameBalance: msg.value }),
+                             
                             player2accepted: false,
                             totalGameTime: 600,
                             p1Time: 300,
@@ -164,7 +166,10 @@ contract GameContract {
       // case: player2 accept on player1 cancel? unlikely - possible?
       // a game balance mapping would be cool
       (bool success, ) = msg.sender.call{value:refundAmount}("");
-      require(success, "Refund failed.");  
+      if(!success){
+        revert();
+      }
+        
 
       emit gameCanceled(msg.sender, refundAmount);  
     }
@@ -194,7 +199,7 @@ contract GameContract {
       require(game.playerTwo == msg.sender);
       game.player2accepted = true;
       game.gState = gameState.InProgress;
-      game.gameBalance += msg.value;
+      game.settings.gameBalance += msg.value;
 
       emit player2Accepted(game.playerOne, game.playerTwo, true);
     }
@@ -202,9 +207,16 @@ contract GameContract {
   
   function claculateStreamFlowRate(uint _availableBudget, 
                                 uint _totalTimeRemaining,
-                                uint[3] memory _materialShare,
-                                uint p01Switch )
-                                internal pure returns( uint rawFlowRate) {
+                                uint[3] memory _materialShare)
+                                internal view returns( uint rawFlowRate) {
+  uint p01Switch;
+
+  if (otherPlayer(myLastGame[msg.sender]) == games[myLastGame[msg.sender]].playerTwo) {
+    p01Switch = 0;
+  } else {
+    p01Switch = 1;
+  }
+
   rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
                                 }
   
@@ -221,12 +233,14 @@ contract GameContract {
     string memory prevState= string(game.currentGameBoard);
     // address otherPlayer(myLastGame[msg.sender]) = otherPlayer(myLastGame[msg.sender])Player(myLastGame[msg.sender]); 
     
-    
+    {
+
+    }
     game.lastMover= msg.sender;
     game.currentGameBoard = submitted; 
       
     game.materialState = _material;
-    uint playerSwitch= 0;
+    //uint playerSwitch= 0;
 
     if( game.lastMoveTime > 0) {
       
@@ -247,7 +261,7 @@ contract GameContract {
           game.firstToZero = game.playerTwo;
         } else {
           game.p2Time = game.p2Time - (block.timestamp - game.lastMoveTime);
-          playerSwitch= 1;
+          //playerSwitch= 1;
         }
     }
     //  game.totalGameTime = game.totalGameTime - (block.timestamp - game.lastMoveTime);
@@ -265,7 +279,7 @@ contract GameContract {
 
   ///calculate stream flowrate
     
-    // claculateStreamFlowRate(game.gameBalance, game.totalGameTime, game.materialState, playerSwitch);
+    // claculateStreamFlowRate(game.settings.gameBalance, game.totalGameTime, game.materialState);
   
   /// starts / modifies stream 
 

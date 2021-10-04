@@ -395,7 +395,7 @@ class App extends Component {
 
     const claimTimeoutVictory = () => {
       if (parseInt(this.state.currentGame[9])< 1 || parseInt(this.state.currentGame[10]) < 1) {
-        if(this.state.accounts[0] !== this.state.currentGame.firstToZero) {
+        if(this.state.accounts[0] !== this.state.currentGame.settings.firstToZero) {
           return( 
             <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Resign </Button> 
           )
