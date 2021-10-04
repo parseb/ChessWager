@@ -84,9 +84,11 @@ export default class CreateNew extends Component {
                         <Form.Group className="mb-3" controlId="GamePerTime">
                             <Form.Label>Minutes Per Player </Form.Label>
                             {/* <Form.Range type="number" placeholder="5" /> */}
-                            <Form.Control type="number" defaultValue="5" min="5" max="30" onChange={this.handleGamePerTimeChange}/>
+                            <Form.Control type="number readonly" defaultValue="5" min="5" max="30" onChange={this.handleGamePerTimeChange} readOnly/>
                             <Form.Text className="text-muted">
-                                Minutes per player between (min. 5 max. 30 )
+                                Minutes per player between (min. 5 max. 30 ) <br />
+                                Currently locked at 5 per player. Max gametime: 10 
+                               
                             </Form.Text>
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="WagerAmount">
@@ -102,7 +104,7 @@ export default class CreateNew extends Component {
                         <Form.Group className="mb-3" controlId="TimeoutTime">
                             <Form.Label>Max Acceptance Time</Form.Label>
                             {/* <Form.Range type="number" placeholder="5" /> */}
-                            <Form.Control type="number" defaultValue="2" min="1" max="20" onChange={this.handleTimeoutTimeChange} />
+                            <Form.Control type="number readonly" defaultValue="2" min="1" max="20" onChange={this.handleTimeoutTimeChange} readOnly />
                             <Form.Text className="text-muted">
                             Time limit in Minutes for Invited Player to Accept Game
                             </Form.Text>
