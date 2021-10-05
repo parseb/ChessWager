@@ -357,7 +357,7 @@ class App extends Component {
               </Row>
               <hr />
               <Row>
-               Game Info 
+               {claimTimeoutVictory()}
               </Row>
               <hr />
             </Card>
@@ -371,22 +371,22 @@ class App extends Component {
       let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
       // if (this.state.color === "black" && !isTurn)   
       // {
-      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[8]) * 1000 } /> )
       // }
       //   else if (this.state.color === "white" && !isTurn)
       // {
-      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )
       // }
       if (this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000") {
         if (this.state.currentGame[1] === this.state.accounts[0]) { 
           
-          let minutes = Math.floor(parseInt(this.state.currentGame[10]) / 60)
-          let secs= parseInt(this.state.currentGame[10]) - minutes * 60
+          let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
+          let secs= parseInt(this.state.currentGame[9]) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
         } else {
           
-          let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
-          let secs= parseInt(this.state.currentGame[9]) - minutes * 60
+          let minutes = Math.floor(parseInt(this.state.currentGame[8]) / 60)
+          let secs= parseInt(this.state.currentGame[8]) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
         }
       }
@@ -394,10 +394,10 @@ class App extends Component {
     }
 
     const claimTimeoutVictory = () => {
-      if (parseInt(this.state.currentGame[9])< 1 || parseInt(this.state.currentGame[10]) < 1) {
+      if (parseInt(this.state.currentGame[8])< 1 || parseInt(this.state.currentGame[9]) < 1) {
         if(this.state.accounts[0] !== this.state.currentGame.settings.firstToZero) {
           return( 
-            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Resign </Button> 
+            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Flag Oponent (time elapsed) </Button> 
           )
         }
       }
@@ -406,7 +406,7 @@ class App extends Component {
     const thisPlayerCounter = () => {
       let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
       if (this.state.color === "black" && isTurn) {
-        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[10]) * 1000 } /> )
+        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[8]) * 1000 } /> )
       } else if (this.state.color === "white" && isTurn)
       {
         return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )  

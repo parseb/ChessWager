@@ -42078,12 +42078,12 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0x5A6a77288D36eFdC689407Cefb612c14186DfDCc",
-      "transactionHash": "0x6c3f55993a4433fb9a6429b47a89b5a6a179e47e4c58c7b6248fc3e590e00f83"
+      "address": "0x20691c5933fadA06CD08F6DaA1602A421e3217Ed",
+      "transactionHash": "0x512352da01b31368d6a6bc3257036cb03cfa77dafc584ed8233b8909ac220b8e"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-10-04T14:55:06.355Z",
+  "updatedAt": "2021-10-05T15:31:05.025Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
