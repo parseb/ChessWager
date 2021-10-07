@@ -920,12 +920,18 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0xce63081f05e7A9De4510C9F9B666E77366f9e7eE",
-      "transactionHash": "0xce011c314604514420ed843a4650cf46be922851a6d45b65643f1b0e452223dd"
+      "address": "0x0Fb0992Fb1b83b82E8fA19C724172b09A559ad34",
+      "transactionHash": "0xddc7ed528993356f64e8a82d48b7a315372e192ef565b34e331550f4b04a0c3f"
+    },
+    "80001": {
+      "events": {},
+      "links": {},
+      "address": "0xA0ECee0a833e8748f28fc848be55cbD6B15b1002",
+      "transactionHash": "0xbd2ce3e252eae9de83560f6168778a06743f5aa5cc4da6c749d2b28acdaf2a07"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-10-05T15:31:05.043Z",
+  "updatedAt": "2021-10-07T09:53:44.533Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

@@ -316,7 +316,7 @@ event playerResigned(address indexed submittedby, address indexed OtherPlayer, a
       require( (otherPlayer(myLastGame[msg.sender]) == games[myLastGame[msg.sender]].firstToZero) ||  ( (games[myLastGame[msg.sender]].settings.timeoutTime < (block.timestamp + 60)) && (games[myLastGame[msg.sender]].lastMover == address(0)) ), "Adversary did not timeout yet");
     
       // Modify state, execute timeout logic #@@branch
-
+    
   }
 
   // function timeOutforAccept() public {

@@ -33,7 +33,19 @@ module.exports = {
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
-    }
+    },
+    mumbai: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "https://polygon-mumbai.infura.io/v3/a707aad70b7c485ab184a3e9d4e55964")},
+        network_id: 80001,
+        
+    },
+    kovan: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "wss://kovan.infura.io/ws/v3/a707aad70b7c485ab184a3e9d4e55964");
+      },
+      network_id: 42
+    },
   },
   plugins: ["solidity-coverage",  "truffle-plugin-debugger"]
 };
