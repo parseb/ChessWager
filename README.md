@@ -46,5 +46,6 @@ Guess... that's about it.
 <br>
 ### Supply chain 
 *   [chess.js](https://github.com/jhlywa/chess.js.git)
+<br />
 *   [chessboard.js](https://github.com/oakmac/chessboardjs/)
 <br>
