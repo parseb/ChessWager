@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 //pragma solidity >=0.4.22 <0.9.0;
-pragma solidity >=0.7.0;
+pragma solidity >=0.8.0;
 pragma experimental ABIEncoderV2;
 
 contract GameContract {
@@ -22,7 +22,8 @@ contract GameContract {
   //    owner3= _newOwner;
   // }
 /////// Constructor END
-  
+  uint[2] flowrate;
+
   enum gameState {NoAssignedState, Staged, InProgress, Ended, Rejected }
   
   struct gameSettings {
@@ -46,7 +47,7 @@ contract GameContract {
     uint totalGameTime;
     uint p1Time;
     uint p2Time;
-    uint[3] materialState;
+    uint[5] materialState;
     uint lastMoveTime;
     address firstToZero;
   }
@@ -117,13 +118,13 @@ contract GameContract {
                                               totalTime: _totalTime,
                                               timeoutTime: _timeoutTime + block.timestamp,
                                               wageSize:  _wageSize,
-                                              gameBalance: msg.value }),
+                                              gameBalance: msg.value }), ///not decreasing
                              
                             player2accepted: false,
                             totalGameTime: 600,
                             p1Time: 300,
                             p2Time: 300,
-                            materialState: [uint(1),uint(2),uint(3)],
+                            materialState: [uint(1),uint(1),uint(1),uint(1),uint(1)],
                             lastMoveTime:0,
                             firstToZero: address(0)   
                             });
@@ -174,9 +175,21 @@ contract GameContract {
       emit gameCanceled(msg.sender, refundAmount);  
     }
    }
+
+     function payCallerGameBalance(address caller) private returns( bool success) {
+  
+    uint howmuch = games[myLastGame[caller]].settings.gameBalance;
+    games[myLastGame[msg.sender]].settings.gameBalance = 0;
+  
+    (success,) = msg.sender.call{value:howmuch}("");
+      if (! success) {
+        revert();
+      }
+  }
+
+
   
   event player2Accepted(address indexed _player1, address indexed _player2, bool _accepted);
-  
   
 
   function playerTwoAccepted(bool _accepted) public payable  {
@@ -185,13 +198,12 @@ contract GameContract {
       require(game.playerTwo == msg.sender);
       game.player2accepted = false;
       game.gState = gameState.Rejected;
-      //or cancel? w\ no refund?
+
       myLastGame[game.playerOne]= 0;
       myLastGame[game.playerTwo]= 0;
-      //uint tenpercent = 
+
       myLastGame[msg.sender] = 0; 
-      //(bool success,) = msg.sender.call.value(//%palyer1deposit/gascost)()
-      //norefund for now.
+
       emit player2Accepted(game.playerOne, game.playerTwo, false);
     } else {
       gameData storage game = games[myLastGame[msg.sender]];
@@ -207,8 +219,8 @@ contract GameContract {
   
   function claculateStreamFlowRate(uint _availableBudget, 
                                 uint _totalTimeRemaining,
-                                uint[3] memory _materialShare)
-                                internal view returns( uint rawFlowRate) {
+                                uint[5] memory _materialShare)
+                                internal returns( bool calculated) {
   uint p01Switch;
 
   if (otherPlayer(myLastGame[msg.sender]) == games[myLastGame[msg.sender]].playerTwo) {
@@ -216,13 +228,21 @@ contract GameContract {
   } else {
     p01Switch = 1;
   }
+  
+  uint rawFlowRate= (uint(_availableBudget)*100 / uint(_totalTimeRemaining)*100) * (uint(_materialShare[p01Switch])*100 / (uint(_materialShare[2])*100));
 
-  rawFlowRate= (_availableBudget / _totalTimeRemaining) * (_materialShare[p01Switch]/_materialShare[2]);
-                                }
+  uint pswitch= p01Switch +3;
+  // uint[2] memory pswitchFlowRate = ;
+  // pswitchFlowRate.push(pswitch);
+  // pswitchFlowRate.push(rawFlowRate);
+  flowrate = [pswitch, rawFlowRate];
+
+  calculated= true;                              
+                           }
   
   event newMoveInGame(address indexed submittedby, address indexed otherPlayer, string indexed prevState, gameData current);
 
-  function submitMove(string memory _submittedMove, uint[3] memory _material) public {
+  function submitMove(string memory _submittedMove, uint[5] memory _material) public {
 
     string memory submitted = _submittedMove;
     require(games[myLastGame[msg.sender]].player2accepted, "Player2 did not accept yet.");
@@ -230,28 +250,28 @@ contract GameContract {
     
     gameData storage game= games[myLastGame[msg.sender]]; 
     
-    string memory prevState= string(game.currentGameBoard);
-    // address otherPlayer(myLastGame[msg.sender]) = otherPlayer(myLastGame[msg.sender])Player(myLastGame[msg.sender]); 
-    
-    {
-
-    }
+    string memory prevState= string(game.currentGameBoard); //????
+    game.materialState[0] = _material[0];
+    game.materialState[1]= _material[1];
+    game.materialState[2]=_material[2];  
+   
     game.lastMover= msg.sender;
     game.currentGameBoard = submitted; 
-      
-    game.materialState = _material;
-    //uint playerSwitch= 0;
-
+    //game.materialState = _material;
     if( game.lastMoveTime > 0) {
       
+    claculateStreamFlowRate(uint(game.settings.gameBalance), uint(game.totalGameTime), game.materialState);
 
       if(otherPlayer(myLastGame[msg.sender]) == game.playerTwo) {
       //  this is player1
         if ((block.timestamp - game.lastMoveTime) > game.p1Time) { 
           game.p1Time = 0;
           game.firstToZero = game.playerOne;
+          // pay other player on 0
         } else {
+          game.materialState[3] = game.materialState[flowrate[0]] + (flowrate[1] *  (block.timestamp - game.lastMoveTime));
           game.p1Time = game.p1Time - (block.timestamp - game.lastMoveTime);
+          
         }
       
     } else {
@@ -260,87 +280,71 @@ contract GameContract {
           game.p2Time = 0;
           game.firstToZero = game.playerTwo;
         } else {
+          game.materialState[4] = game.materialState[flowrate[0]] + (flowrate[1] *  (block.timestamp - game.lastMoveTime));
           game.p2Time = game.p2Time - (block.timestamp - game.lastMoveTime);
-          //playerSwitch= 1;
         }
     }
-    //  game.totalGameTime = game.totalGameTime - (block.timestamp - game.lastMoveTime);
-        game.totalGameTime = game.p1Time + game.p2Time;
+
+         game.totalGameTime = game.p1Time + game.p2Time;
+         
+    
+         //game.materialState[3] = game.materialState[flowrate[0]] + (flowrate[1] *  (block.timestamp - game.lastMoveTime));
+         uint g= uint(game.settings.gameBalance) - ( flowrate[1] *  (block.timestamp - game.lastMoveTime));
+         game.settings.gameBalance = g;
+         
+ 
+
+         
     } 
     
-     
-    // update remaining total gametime
-   
-    //update last move time
     game.lastMoveTime = block.timestamp; 
-    emit newMoveInGame( msg.sender, otherPlayer(myLastGame[msg.sender]), string(prevState), game );
-  
+
     
+
+
+    emit newMoveInGame( msg.sender, otherPlayer(myLastGame[msg.sender]), string(prevState), game );
+
 
   ///calculate stream flowrate
     
-    // claculateStreamFlowRate(game.settings.gameBalance, game.totalGameTime, game.materialState);
+  // claculateStreamFlowRate(game.settings.gameBalance, game.totalGameTime, game.materialState);
   
   /// starts / modifies stream 
-
 
   /// stop stream on low gamebalance
   
   }
 
 
+
+
 event playerResigned(address indexed submittedby, address indexed OtherPlayer, address PlayerNotLastMovedThatResigned);
 
   function resignGame() public {
-    //gameData storage game = games[myLastGame[msg.sender]];
     
     if ( onMoveStateCheck(myLastGame[msg.sender]) ) {
 
-      myLastGame[otherPlayer(myLastGame[msg.sender])] = 0;
-      myLastGame[msg.sender]= 0;
-      
-      //reverse order
-      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);    
-      
+      payCallerGameBalance(otherPlayer(myLastGame[msg.sender]));
+
+      if (games[myLastGame[msg.sender]].settings.gameBalance == 0) {
+        myLastGame[otherPlayer(myLastGame[msg.sender])] = 0;
+        myLastGame[msg.sender]= 0;
+      } else {
+        revert("Something went wrong.");
+      }
+      emit playerResigned(msg.sender, otherPlayer(myLastGame[msg.sender]), msg.sender);   
     }
   
   }
 
   function otherPlayerTimedOut() public {
-    //case1: playerrefuses to move, time elapses, adversary needs to be able to claim victory if no streaming. if supefluid streaming - avoid defaulting penalty
-    //case2: white accepts game but never moves (accept timeout titme  + extra 60 seconds)
-      //gameData memory game = games[myLastGame[msg.sender]];
-      
-      //bool whiteNoMoveCondition = ( (games[myLastGame[msg.sender]].settings.timeoutTime < (block.timestamp + 60)) && (games[myLastGame[msg.sender]].lastMover == address(0)) );
-      //require(game.firstToZero != address(0), "No player timed out yet");
+      // covers edge cases
       require( (otherPlayer(myLastGame[msg.sender]) == games[myLastGame[msg.sender]].firstToZero) ||  ( (games[myLastGame[msg.sender]].settings.timeoutTime < (block.timestamp + 60)) && (games[myLastGame[msg.sender]].lastMover == address(0)) ), "Adversary did not timeout yet");
-    
-      // Modify state, execute timeout logic #@@branch
+
+      payCallerGameBalance(msg.sender);
+
+      myLastGame[msg.sender] = 0;
+      myLastGame[otherPlayer(myLastGame[msg.sender])] = 0;
 
   }
-
-  // function timeOutforAccept() public {
-  //   uint gId= myLastGame[msg.sender];
-  //   gameData memory game = games[myLastGame[msg.sender]];
-  //   if ( ( game.settings.timeoutTime < block.timestamp ) && (! game.player2accepted ) ) {
-  //     myLastGame[otherPlayer(myLastGame[msg.sender])Player(gId)] = 0;
-  //     myLastGame[msg.sender] = 0;
-
-  //     //refund
-  //   }
-
-  //   // handled in cancelGame 
-  // } 
-
-
-
-  // include edge case when white accepts game, but never moves.
-
-///////////BulkHudiEnd
-
-// function calculateMaterialFenSplit(string memory rawFen) internal pure returns (int8[3] memory materialAdvantage){
-//   //// can't really do this myself in solidity atm
-// }
-
-
 }
