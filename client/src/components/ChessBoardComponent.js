@@ -16,7 +16,8 @@ export default class ChessBoardComponent extends Component{
             //fen: new Chess().fen()
             fen: this.props.currentboard,
             game: new Chess(this.props.currentboard),
-            color:'black'
+            color:"black",
+            currentgame: this.props.currentgame
             
 		}
     
@@ -29,7 +30,12 @@ export default class ChessBoardComponent extends Component{
 
   componentDidMount() {
     //console.log('game OVER: ', this.state.game.fen(), Chess(this.props.currentboard).fen())
-
+    console.log("currentgame in chessboard:" , (this.props.currentgame[1] == this.props.account) )
+    if (this.props.currentgame[1] == this.props.account) {
+      this.setState({color: 'white'})
+    } else {
+      this.setState({color: 'black'})
+    }
     }
 
     componentWillReceiveProps(nextprops){
@@ -37,6 +43,8 @@ export default class ChessBoardComponent extends Component{
       this.setState({
           fen: nextprops.currentboard,
           game: new Chess(nextprops.currentboard),
+          currentgame: this.props.currentgame
+          //color: nextprops.color
           });
        
     }
@@ -80,7 +88,7 @@ export default class ChessBoardComponent extends Component{
    
     return (
               <Card.Body >
-              <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.props.color}	/>
+              <Chessboard position={this.props.currentboard} onPieceDrop={this.onDrop} boardOrientation={this.state.color}	/>
               </Card.Body>                     
         )
 }
