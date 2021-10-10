@@ -23,7 +23,7 @@ jobs:
         run: cd client && yarn
         
       - name: npm build task
-        run: cd client && npm run build
+        run: cd client && CI= npm run build
       
 
       - name: Deploy to Skynet
