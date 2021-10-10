@@ -50523,6 +50523,7 @@
     "1337": {
       "events": {},
       "links": {},
+<<<<<<< HEAD
       "address": "0x6Da02853573fdfbE2743c23de72F11212cECc0bE",
       "transactionHash": "0xa880d361a40f5570ade14c1a78e2369432a7e4b8b23aa5a05294fbe4b2b1917a"
     },
@@ -50535,6 +50536,14 @@
   },
   "schemaVersion": "3.4.3",
   "updatedAt": "2021-10-10T13:02:47.121Z",
+=======
+      "address": "0x937E72b5604CA009F8f9a90843207D6Fb17f1AC4",
+      "transactionHash": "0x93c59a6e78b6f6e02cfa536d4bb27c41c16a6520ab6054397aa6e68eeeef3760"
+    }
+  },
+  "schemaVersion": "3.4.3",
+  "updatedAt": "2021-09-28T20:55:04.797Z",
+>>>>>>> main
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

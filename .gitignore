@@ -1,4 +1,5 @@
 node_modules
+<<<<<<< HEAD
 node_modules/.package-lock.json
 node_modules/dotenv/CHANGELOG.md
 node_modules/dotenv/config.js
@@ -191,3 +192,6 @@ node_modules/truffle-plugin-debugger/ui/src/styles/Tooltip.tsx
 node_modules/truffle-plugin-debugger/ui/src/types/truffle.d.ts
 node_modules/truffle-plugin-debugger/ui/src/utils/getDecodedValue.ts
 node_modules/truffle-plugin-debugger/ui/src/utils/getWeb3.ts
+=======
+node_modules
+>>>>>>> main
