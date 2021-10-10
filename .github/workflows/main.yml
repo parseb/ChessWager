@@ -15,15 +15,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.8
-
-      - name: Install dependencies
-        run: cd client 
         
-      - name: Install w npm
-        run: npm install
-
       - name: Build webapp
-        run: yarn build
+        run: cd client && npm run build
 
       - name: Deploy to Skynet
         uses: SkynetLabs/deploy-to-skynet-action@v2.0.2
