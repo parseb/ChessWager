@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Build webapp
-        run: npm run build
+        run: yarn build
 
       - name: Deploy to Skynet
         uses: SkynetLabs/deploy-to-skynet-action@v2.0.2
