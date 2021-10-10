@@ -16,6 +16,10 @@ jobs:
         with:
           node-version: 14.8
         
+      - name: Installs npm
+        uses: npm install -g npm@latest
+        
+        
       - name: Build webapp
         run: cd client && npm run build
       
