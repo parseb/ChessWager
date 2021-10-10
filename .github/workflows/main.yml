@@ -17,10 +17,8 @@ jobs:
           node-version: 14.8
         
       - name: Build webapp
-        run: pwd 
+        run: cd client && npm run build
       
-      - name: build
-        run: npm run build
 
       - name: Deploy to Skynet
         uses: SkynetLabs/deploy-to-skynet-action@v2.0.2
