@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Countdown from 'react-countdown';
+
 
 import getWeb3 from "./getWeb3";
 import  Chess  from 'chess.js';
@@ -7,7 +7,7 @@ import  Chess  from 'chess.js';
 import HomeFooter from "./components/HomeFooter";
 import ChessTitle from  "./components/ChessTitle";
 import "./App.css";
-import { Container, Row, Spinner, Col, Button, Card, ProgressBar }  from 'react-bootstrap';
+import { Container, Row, Spinner, Col, Button, Card }  from 'react-bootstrap';
 import GameContract from "./contracts/GameContract.json";
 import CreateNew from "./components/CreateNewGame";
 
@@ -57,7 +57,7 @@ class App extends Component {
 
     this.getGameCount();
       
-    this.getCurrentGame();
+
 
     this.eventListen(); 
   }
@@ -71,17 +71,8 @@ class App extends Component {
   getCurrentGame = async () => {
     const { accounts, contract, web3js } = this.state;
     const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-<<<<<<< HEAD
-    // let color= this.state.currentGame[1] == this.state.accounts[0] 
-    // if (color) { this.setState({ color:"black" })}
-    //let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
+    
     this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: currentgame.gState });
-=======
-    //let color= this.state.currentGame[1] == accounts[0] 
-    //if (color) { this.setState({ color:"white" })}
-    let playcolor = (currentgame.Player2Address == accounts[0]) ? ("white") : ("black") 
-    this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, color: color, g_state: currentgame.gState });
->>>>>>> main
     console.log("this is current game")
     console.log(currentgame, currentgame.currentGameBoard, this.state.currentGameBoard); 
 
@@ -90,7 +81,6 @@ class App extends Component {
   sendCreateGame = async (s) => {
   
     const { accounts, contract, web3js } = this.state;
-    //s.WagerAmount = this.state.web3.utils.toWei(s.WagerAmount)
  
     let createCall= await contract.methods.initializeGame(s.Player2Address,s.GamePerTime,s.TimeoutTime,s.WagerAmount,new Chess().fen())
     .send({ from: accounts[0], value: s.WagerAmount })
@@ -103,7 +93,7 @@ class App extends Component {
     .send({from: accounts[0], value: this.state.currentGame.settings.wageSize});
     
     
-    //this.setState({color:'white'})
+
   }
 
   declineGameInvite= async () =>{
@@ -140,15 +130,12 @@ class App extends Component {
     });
 
    
-    materialscore=[white,black,white + black,1,1]
+    materialscore=[white,black,white + black]
     console.log(white, black);
-   // 'r1bqkbnr/pppp1ppp/8/4B3/8/8/PPP1PPPP/RN1QKBNR b KQkq - 0 4'
+
     
     await this.state.contract.methods.submitMove(f, materialscore).send({from: this.state.accounts[0]})
-    // .then(
-    //   this.getCurrentGame()
-    // )
-    // this.eventListen();
+
   }
 
   resignGame = async () => {
@@ -173,18 +160,13 @@ class App extends Component {
     console.log("CONNNTRRACTT", contract)
 
     contract.events.allEvents({
-      //filter: {_otherPlayer: this.state.accounts[0]}, // Using an array means OR: e.g. 20 or 23
-      // fromBlock: 'latest'
+
       
   }, async (error, event) => { 
     console.log('this is event', event); 
-    // const { accounts, contract, web3js } = this.state;
-    // const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-    // this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
-    // console.log("id did set state:", this.state.currentGameBoard )
+
   })
   
-  //this.checkAndReturnCurrentGame();//////////!!!!!!!!!!!!!!!
   
   
   .on("connected", function(subscriptionId){
@@ -195,7 +177,7 @@ class App extends Component {
       console.log(event); 
       if (event.event === "newMoveInGame") {
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
+        this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard, g_state: toString(currentgame.gState) });
         console.log("NewMove Event - state:", this.state.currentGameBoard );
         console.log("returned game", event.returnValues)
       }
@@ -207,7 +189,7 @@ class App extends Component {
       }
 
       if(event.event === "player2Accepted") {
-        //accord= event.returnValues._accepted;
+
         const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
         this.setState({ currentGame: currentgame, currentGameBoard: currentgame.currentGameBoard });
         console.log("Player Accept - state:",event.returnValues._accepted ,this.state.currentGameBoard )
@@ -232,21 +214,18 @@ class App extends Component {
   })
   .on("newMoveInGame", function(e){
       console.log("in new move event", e);
-      // this.setState({currentGameBoard : e.returnValues.nextState })
+
 
   })
   .on('error', function(error, receipt) {
       console.log("Error Event:", error)
   });
   
-  // const currentgame = await this.state.contract.methods.checkAndReturnCurrentGame().call();
-  // this.setState({ currentGame: currentgame });
-  // console.log("in envents", currentgame)
 
   };
   
   render() {
-  //chessb end
+   
     const gamestates= {0:"Stateless", 1: "Staged", 2:"In Progress", 3: "Ended", 4: "Rejected"}
     const createGame=  () => {
       
@@ -258,7 +237,7 @@ class App extends Component {
     }
 
     const cancelGameButton= () => {
-      // needed? maybe later
+
       if (this.state.currentGame[0] == this.state.accounts[0] && parseInt(this.state.currentGame[5][1]) < Date.now() && (this.state.g_state == "1" ) ) {
         return (
           <Row>
@@ -300,25 +279,9 @@ class App extends Component {
         )
       } else {
         return  ( <h6> Invite Accepted: {String(this.state.currentGame.player2accepted)} </h6>)
-        //@# debt - refactor
+
       }
     }
-
-    // const blackTurnStyle = (playeraddress) => {
-    //   if (this.state.currentGame[7]){
-    //     if (this.state.currentGame[4] !== playeraddress ) {
-    //       return(
-            
-    //         <div className="thisplayer" color='white' backgroundColor='black' >
-    //           {{playeraddress}}
-    //         </div>
-    //         )
-    //     }
-    //   }
-    //   else {
-    //     return ( playeraddress)
-    //   }
-    // }
 
     const otherPlayer = () => {
       if ( this.state.currentGame.gState === "0") { return "◪"  }
@@ -339,28 +302,6 @@ class App extends Component {
       {
         return ( <Button variant="danger" size="lg" onClick={this.resignGame} > Resign </Button> )   
       }
-    }
-
-    const progressBar= () => {
-      let thisplayer, other;
-      if (this.state.currentGame.Player2Address == this.state.accounts[0]) {
-       thisplayer = 0;
-       other = 1;
-
-      } else {
-        thisplayer = 1;
-        other = 0;
-      
-      }
-      let colors= ["success", "black"]
-      let gamebalance= (this.state.currentGame.settings.gameBalance / (this.state.currentGame.settings.wageSize*2)) *100;
-      return(
-        <ProgressBar>
-            <ProgressBar striped variant={colors[thisplayer]} now={this.state.currentGame.materialState[thisplayer+3] / (this.state.currentGame.settings.wageSize*2) *100} key={1} />
-            <ProgressBar variant="warning" now={gamebalance} key={2} />
-            <ProgressBar striped variant={colors[other]} now={this.state.currentGame.materialState[other+3] / (this.state.currentGame.settings.wageSize*2) *100 } key={3} />
-        </ProgressBar>
-      )
     }
     
     const gameInfoCol = () => {
@@ -386,12 +327,9 @@ class App extends Component {
               </Row>
               <hr />
               <Row>
-               {claimTimeoutVictory()}
+                {claimTimeoutVictory()}
               </Row>
               <hr />
-              <Row>
-              {progressBar()}
-              </Row>
             </Card>
             </Container>
             </Col> 
@@ -401,50 +339,46 @@ class App extends Component {
 
     const otherPlayerCounter = () => {
       let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
-      // if (this.state.color === "black" && !isTurn)   
-      // {
-      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[8]) * 1000 } /> )
-      // }
-      //   else if (this.state.color === "white" && !isTurn)
-      // {
-      //   return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )
-      // }
+  
       if (this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000") {
         if (this.state.currentGame[1] === this.state.accounts[0]) { 
           
-          let minutes = Math.floor(parseInt(this.state.currentGame[9]) / 60)
-          let secs= parseInt(this.state.currentGame[9]) - minutes * 60
+          let minutes = Math.floor(parseInt(this.state.currentGame.p1Time) / 60)
+          let secs= parseInt(this.state.currentGame.p1Time) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
         } else {
           
-          let minutes = Math.floor(parseInt(this.state.currentGame[8]) / 60)
-          let secs= parseInt(this.state.currentGame[8]) - minutes * 60
+          let minutes = Math.floor(parseInt(this.state.currentGame.p2Time) / 60)
+          let secs= parseInt(this.state.currentGame.p2Time) - minutes * 60
           return( <p>{minutes}:{secs}</p>)
         }
       }
       
     }
 
+    const thisPlayerCounter = () => {
+      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
+      if (this.state.color === "black" && isTurn) {
+        let minutes = Math.floor(parseInt(this.state.currentGame.p1Time) / 60)
+        let secs= parseInt(this.state.currentGame.p1Time) - minutes * 60
+        return( <p>{minutes}:{secs}</p>)
+      } else if (this.state.color === "white" && isTurn)
+      {
+        let minutes = Math.floor(parseInt(this.state.currentGame.p2Time) / 60)
+          let secs= parseInt(this.state.currentGame.p2Time) - minutes * 60
+          return( <p>{minutes}:{secs}</p>)
+      }
+    }
+
     const claimTimeoutVictory = () => {
-      if (parseInt(this.state.currentGame[8])< 1 || parseInt(this.state.currentGame[9]) < 1) {
-        if(this.state.accounts[0] !== this.state.currentGame.settings.firstToZero) {
+      if (parseInt(this.state.currentGame.p1Time)< 1 || parseInt(this.state.currentGame.p2Time) < 1) {
+        if(this.state.accounts[0] != this.state.currentGame[12]) {
           return( 
-            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Flag Oponent (time elapsed) </Button> 
+            <Button variant="warning" size="lg" onClick={this.otherPlayerTimedOut} > Time Flag Victory </Button> 
           )
         }
       }
     }
-
-    const thisPlayerCounter = () => {
-      let isTurn = (this.state.currentGame[4] !== this.state.accounts[0]) && parseInt(this.state.currentGame[2]) > 1 && ( this.state.currentGame[4] !== "0x0000000000000000000000000000000000000000")
-      if (this.state.color === "black" && isTurn) {
-        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[8]) * 1000 } /> )
-      } else if (this.state.color === "white" && isTurn)
-      {
-        return ( <Countdown date={Date.now() + parseInt(this.state.currentGame[9]) * 1000 } /> )  
-      }
-    }
-    
 
      if (!this.state.web3) {
        return (  
@@ -502,5 +436,3 @@ class App extends Component {
 }
 
 export default App;
-
-
