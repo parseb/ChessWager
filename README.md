@@ -1,4 +1,4 @@
-
+[![Add to Homescreen](https://img.shields.io/badge/Skynet-Add%20To%20Homescreen-00c65e?logo=skynet&labelColor=0d0d0d)](https://homescreen.hns.siasky.net/#/skylink/AABi5oObi10EacrTldI1iVauycKNN6CKqYYgO_ba5rPl3A)
 
 ## __Chess Wager__
 **Themes**: board game, confidence check
