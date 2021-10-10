@@ -42,7 +42,7 @@ module.exports = {
     },
     kovan: {
       provider: function() {
-        return new HDWalletProvider(mnemonic, "wss://kovan.infura.io/ws/v3/a707aad70b7c485ab184a3e9d4e55964");
+        return new HDWalletProvider(mnemonic, "https://poa-kovan.gateway.pokt.network/v1/lb/6162d48025e510003623d8d4");
       },
       network_id: 42
     },
