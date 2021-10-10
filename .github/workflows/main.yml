@@ -20,7 +20,7 @@ jobs:
         run: npm install -g npm@7.24.2
         
       - name: Build webapp
-        run: cd client && npm install &&  npm run build
+        run: cd client && npm install && npm install react-countdown --save &&  npm run build
       
 
       - name: Deploy to Skynet
