@@ -17,7 +17,7 @@ jobs:
           node-version: 14.8
 
       - name: Install dependencies
-        run: yarn
+        run: cd client && yarn
 
       - name: Build webapp
         run: yarn build
