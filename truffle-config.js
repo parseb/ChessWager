@@ -44,7 +44,8 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider(mnemonic, "https://poa-kovan.gateway.pokt.network/v1/lb/6162d48025e510003623d8d4");
       },
-      network_id: 42
+      network_id: 42,
+      timeoutBlocks: 200
     },
   },
   plugins: ["solidity-coverage",  "truffle-plugin-debugger"]
