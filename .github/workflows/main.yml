@@ -17,6 +17,9 @@ jobs:
           node-version: 14.8
         
       - name: Build webapp
+        run: cd client 
+      
+      - name: build
         run: npm run build
 
       - name: Deploy to Skynet
