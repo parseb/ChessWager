@@ -20,10 +20,10 @@ jobs:
         run: npm install -g npm@7.24.2
         
       - name: Build webapp
-        run: cd client && npm install 
+        run: cd client && yarn
         
       - name: npm build task
-        run: npm run build
+        run: pwd && npm run build
       
 
       - name: Deploy to Skynet
