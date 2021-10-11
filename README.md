@@ -1,4 +1,4 @@
-[![Add to Homescreen](https://img.shields.io/badge/Skynet-Add%20To%20Homescreen-00c65e?logo=skynet&labelColor=0d0d0d)](https://homescreen.hns.siasky.net/#/skylink/AABi5oObi10EacrTldI1iVauycKNN6CKqYYgO_ba5rPl3A)
+[![My CI Pipeline](https://github.com/parseb/ChessWager/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/parseb/ChessWager/actions/workflows/main.yml) [![Add to Homescreen](https://img.shields.io/badge/Skynet-Add%20To%20Homescreen-00c65e?logo=skynet&labelColor=0d0d0d)](https://homescreen.hns.siasky.net/#/skylink/AABi5oObi10EacrTldI1iVauycKNN6CKqYYgO_ba5rPl3A)
 
 https://00065pk3je5lq139pb9pbkhlh5batie2hkrq12l9gog3ntmqsqpubn0.siasky.net/
 
