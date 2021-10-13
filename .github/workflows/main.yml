@@ -1,4 +1,4 @@
-name: My CI Pipeline
+name: Skynet Frontend pipeline
 
 on:
   pull_request:
