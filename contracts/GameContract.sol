@@ -8,7 +8,7 @@ contract GameContract {
   //address owner3;
   address owner;
   address owner2;
-  uint gameId;
+  uint public gameId;
   
 //////// Constructor 
 //compiler requires public
@@ -84,11 +84,6 @@ contract GameContract {
     return true;
   }
 
-  // function player2NotInAGame(uint _gameid) internal view returns (bool) {
-  //   gameData memory game = games[_gameId];
-  //   require(myLastGame[game.playerTwo] == 0, "Player Two already in a game");
-  //   return true;
-  // } 
 
   function noGameOnCreate(address player) internal view returns(bool) {
     gameData memory lastPlayerGame = games[myLastGame[player]]; 
@@ -141,7 +136,7 @@ contract GameContract {
 
     return gameId;
   }
-
+  //getter function available as replacement
   function getLastGameId() public view returns(uint) {
     return gameId-1; 
   }
